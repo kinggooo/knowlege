@@ -1,0 +1,1462 @@
+
+
+                        
+
+
+                                <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Content-Language" content="zh-CN"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="相见欢,lichhao">
+            <meta name="keywords" content="SpringMVC"/>
+                <meta name="description" itemprop="description" content="SpringMVC使用消息转换器实现请求报文和对象、对象和响应报文之间的自动转换"/>
+        <title>SpringMVC源码剖析（五)-消息转换器HttpMessageConverter - 相见欢</title>
+    <link rel="alternate" type="application/rss+xml" title="SpringMVC源码剖析（五)-消息转换器HttpMessageConverter - 相见欢 - 开源中国社区" href="https://my.oschina.net/lichhao/rss"/>
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico?t=1451961935000"/>
+
+                        <meta itemprop="name" content="SpringMVC源码剖析（五)-消息转换器HttpMessageConverter - 相见欢 - 开源中国社区"/>
+<meta itemprop="image" content="https://www.oschina.net/img/logo_s2.png" />
+
+
+            <link type="text/css" href="/dist/www/css/icon-svg.min.css?t=1474902522000" rel="stylesheet"/>
+                    <link type="text/css" href="/dist/www/css/blog.min.css?t=1483443190000" rel="stylesheet"/>
+            
+            <val data-name="isMobileDevice" data-value="false"></val>
+    
+    <x-foo-define data-define="blog_detail"></x-foo-define>
+    <val data-name="owner_id" data-value="118997"></val>
+    <val data-name="owner_home_url" data-value="https://my.oschina.net/lichhao"></val>
+    <val data-name="this_page" data-value="https%3A%2F%2Fmy.oschina.net%2Flichhao%2Fblog%2F172562"></val>
+
+            <val data-name="g_user_login" data-value="false"></val>
+        <val data-name="goto_this_page" data-value="https://www.oschina.net/home/login?goto_page=https%3A%2F%2Fmy.oschina.net%2Flichhao%2Fblog%2F172562"></val>
+        <val data-name="is_owner" data-value="false"></val>
+            <val data-name="blog_id" data-value="172562"></val>
+                    </head>
+<body>
+            <header class="header-navbar">
+    <div class="layout-flex top-banner">
+        <div class="flex-grow">
+            <a href="https://www.oschina.net/" class="osc-logo"></a>
+            <div class="menus sm-hide">
+               <a class="menu-item" href="https://www.oschina.net/">首页</a>
+               <div class="menu-item menu-drop">
+                   <a href="https://www.oschina.net/project" class="project">
+                       开源项目
+                       <i class="icon-svg icon-arr-down-white"></i>
+                   </a>
+                   <div class="menu-drop-down">
+                       <ul class="drop-list">
+                           <li><a href="https://www.oschina.net/project/zh">国产开源项目</a></li>
+                           <li><a href="https://www.oschina.net/project/tags">项目分类</a></li>
+                           <li><a href="https://www.oschina.net/project/list?sort=time">最新收录项目</a></li>
+                           <li class="split"></li>
+                           <li><a href="https://www.oschina.net/project/lang/19/java">Java 开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/194/csharp">C# 开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/22/php">PHP 开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/21/c">C/C++ 开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/26/ruby">Ruby 开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/25/python">Python 开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/358/go">Go开源软件</a></li>
+                           <li><a href="https://www.oschina.net/project/lang/28/javascript">JS开源软件</a></li>
+                       </ul>
+                   </div>
+               </div>
+               <div class="menu-item menu-drop">
+                   <a href="https://www.oschina.net/question" class="question">
+                       问答
+                       <i class="icon-svg icon-arr-down-white"></i>
+                   </a>
+                   <div class="menu-drop-down">
+                       <ul class="drop-list">
+                           <li><a href="https://www.oschina.net/question?catalog=1"> 技术问答</a></li>
+                           <li><a href="https://www.oschina.net/question?catalog=2"> 技术分享</a></li>
+                           <li><a href="https://www.oschina.net/question?catalog=3"> IT大杂烩</a></li>
+                           <li><a href="https://www.oschina.net/question?catalog=100"> 职业生涯</a></li>
+                           <li><a href="https://www.oschina.net/question?catalog=4"> 站务/建议</a></li>
+                           <li><a href="https://www.oschina.net/alipay"> 支付宝专区</a></li>
+                           <li><a href="https://www.oschina.net/mopaas"> MoPaaS专区</a></li>
+                           <li><a href="https://www.oschina.net/hardware"> 开源硬件专区</a></li>
+                       </ul>
+                   </div>
+               </div>
+               <a href="https://www.oschina.net/tweets" class="menu-item tweets">动弹</a>
+               <a href="https://www.oschina.net/blog" class="menu-item blog">博客</a>
+               <a href="https://www.oschina.net/translate" class="menu-item tran">翻译</a>
+               <a href="https://www.oschina.net/news" class="menu-item news">资讯</a>
+               <div class="menu-item menu-drop">
+                   <a href="https://www.oschina.net/android" class="mobile">
+                       专题
+                       <i class="icon-svg icon-arr-down-white"></i>
+                   </a>
+                   <div class="menu-drop-down">
+                       <ul class="drop-list drop-list-inline">
+                           <li><a href="https://www.oschina.net/event/ych" class="font-red">源创会</a> <a href="https://www.oschina.net/video">视频</a></li>
+                           <li><a href="https://www.oschina.net/question/tag/%E9%AB%98%E6%89%8B%E9%97%AE%E7%AD%94">高手问答</a> <a href="https://www.oschina.net/question/tag/%E5%BC%80%E6%BA%90%E8%AE%BF%E8%B0%88">访谈</a></li>
+                           <li><a href="https://www.oschina.net/question/tag/%E5%BC%80%E6%BA%90%E5%91%A8%E5%88%8A">周刊</a> <a href="https://my.oschina.net/xxiaobian/blog">乱弹</a></li>
+                           <li><a href="https://www.oschina.net/company">公司开源导航页</a></li>
+                       </ul>
+                       <div class="split"></div>
+                       <ul class="drop-list mobile">
+                           <li class="android"><a href="https://www.oschina.net/android">Android开发专区</a></li>
+                           <li class="ios"><a href="https://www.oschina.net/ios/home">iOS开发专区</a></li>
+                           <li class="ios"><a href="https://www.oschina.net/ios/codingList">iOS代码库</a></li>
+                           <li class="wp7"><a href="https://www.oschina.net/wp">Windows Phone</a></li>
+                       </ul>
+                   </div>
+               </div>
+               <a href="https://www.oschina.net/event" class="menu-item event">活动</a>
+               <a href="https://job.oschina.net/" class="menu-item event">招聘</a>
+           </div>
+
+        </div>
+        <div class="user-bar">
+            <div class="user-info">
+                                                    [ <a href='https://www.oschina.net/home/login?goto_page=https%3A%2F%2Fmy.oschina.net%2Flichhao%2Fblog%2F172562'>登录</a> | <a
+                        href="https://www.oschina.net/home/reg">注册</a> ]
+                            </div>
+        </div>
+    </div>
+</header>    <div>
+                        
+
+<val data-name="is_login" data-value="false"></val>
+<val data-name="hljs_js_url" data-value="/dist/www/vendor/highlight/9.5.0/highlight.js?t=1475078300000"></val>
+<val data-name="hljs_css_url" data-value="/build/www/vendor/highlight/9.4.0/styles/zenburn.css?t=1474299593000"></val>
+
+<val data-name="atwho_js_url" data-value="/dist/www/vendor/jquery.atwho/jquery.atwho.js?t=1475078300000"></val>
+<val data-name="atwho_css_url" data-value="/dist/www/vendor/jquery.atwho/jquery.atwho.css?t=1471280191000"></val>
+<val data-name="user_follow_url" data-value="/action/user/follow"></val>
+<val data-name="user_unfollow_url" data-value="/action/user/unfollow"></val>
+
+<!-- content     -->
+<div class="blog blog-article">
+    <div class="">
+        <!-- 侧边栏-目录 -->
+                                <div class="blog-wrapper">
+                <div class="sidebar md-hide">
+                    <div class="catalogWrap" id="catalogWrap">
+                        <span class="sidebar-scrollbar"></span>
+                        <ul class="anchor-content" id="catalogWrapMenu">
+                                                    </ul>
+                    </div>
+                </div>
+            </div>
+                            <div class="blog-wrapper">
+            <div class="back-list">
+                <a href="https://www.oschina.net/blog" class="font-green">博客专区</a> > <a href="https://my.oschina.net/lichhao/blog" class="font-green">相见欢的博客</a> > 博客详情
+            </div>
+        </div>
+
+        <!-- 广告 -->
+                <div class="blog-title-ad">
+            <div class="blog-wrapper">
+                
+<div id="blog-title-ad" data-traceid="blog_ali" data-tracepid="blogup" style=""><a href="http://click.aliyun.com/m/8845/&#10;" target="_blank" style="max-width:780px;"><!--<img src="https://static.oschina.net/uploads/space/2016/1208/124327_Ke03_2982602.jpg">--></a></div>
+<script>
+    function success_jsonpCallback(data) {
+        var obj = eval(data);
+        if( obj.success ){
+            var contents = eval(obj.data[0].content);
+            if(contents.length > 0){
+                var content = contents[0];
+                $('#blog-title-ad').prepend("<a  href='"+ content.url +"' target='_blank' style='max-width:780px;'><img src='"+content.img+"'/></a>");
+                $('#blog-title-ad').show();
+            }
+            
+        }else {
+            $('#blog-title-ad').hide();
+        }
+    }
+    window.addEventListener("load", function() {
+         var url="https://promotion.aliyun.com/promotion/adv/getAliyunAdv.htm?cback=success_jsonpCallback&s=9cd174d9efd443e3982131f97b07e70f&p=page_1470989078421&pin=pos_1475239274174";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            jsonp: "callback",
+            dataType: 'jsonp',
+            jsonpCallback: 'success_jsonpCallback',
+            contentType: "application/json; charset=utf-8",
+            success: function( response ) {
+                // do in callback
+            },
+            error:function(){
+                $('#blog-title-ad').hide();
+            }
+        });
+    }, false);
+</script>            </div>
+        </div>
+                <div class="float-heading">
+            <div class="blog-wrapper">
+                <div class="layout-flex">
+                    <div class="flex-grow">
+                        <div class="heading">SpringMVC源码剖析（五)-消息转换器HttpMessageConverter</div>
+                        <div class="data-info">
+                            <a href="https://my.oschina.net/lichhao/home" class="link-blue" target="_blank">相见欢</a>
+                            发表于3年前
+                        </div>
+                    </div>
+                    <div class="">
+                        <div class="opr-btn">
+                            <div class="opr-btn-blog btn-reward-blog ">
+                                <a href="javascript:void(0)"  data-popupbox-model="reward">
+                                    <i class="icon-svg icon-reward-blog"></i>
+                                </a>
+                            </div>
+                            <!-- 点赞 -->
+                            <div class="opr-btn-blog btn-like-blog ">
+                                                                <a href="javascript:void(0);" class="" onclick="page.vote(172562);" >
+                                    <i class="icon-svg icon-thumbs-o-up-blog"></i>
+                                </a>
+                            </div>
+                                                            <!-- 收藏 -->
+                                <div class="opr-btn-blog btn-favor-blog  hover">
+                                    <a href="javascript:void(0);" class=" " data-blogid="172562" data-blogtype="3" data-userid="" data-thispage="https://my.oschina.net/lichhao/blog/172562">
+                                        <i class="icon-svg icon-star-blog"></i>
+                                     </span>
+                                    </a>
+                                                                    </div>
+
+                                                        <!-- 分享 -->
+                            <div class="opr-btn-blog btn-share-blog hover">
+                                <a href="javascript:void(0);" class="">
+                                    <i class="icon-svg icon-share-o-blog"></i>
+                                </a>
+                                <div class="operate-dropdown share-dropdown">
+                                    <span class="share-title">分享到：</span>
+                                    <div class="bdsharebuttonbox">
+                                        <a href="#" class="bds_mshare" data-cmd="mshare" title="分享到一键分享">一键分享</a>
+                                        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+                                        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+                                        <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+                                        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">新浪微博</a>
+                                        <a href="#" class="bds_sqq" data-cmd="sqq" title="分享到QQ好友">QQ好友</a>
+                                        <a href="#" class="bds_youdao" data-cmd="youdao" title="分享到有道云笔记">有道云笔记</a>
+                                    </div>
+                                    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":["mshare","qzone","tsina","weixin","tqq","sqq"],"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/js/bdshare_api/share.js?t=1466497475000'];</script>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 文章内容 -->
+        <div class="blog-content">
+            <!-- 标题 -->
+            <div class="blog-heading">
+                <div class="title">
+                    <span class="status-tag original" title="原创博客">原</span>                    <span class="status-tag recommend" title="首页推荐过的博客">荐</span>                                                            SpringMVC源码剖析（五)-消息转换器HttpMessageConverter
+                </div>
+                <div class="info-opr layout">
+                    <div class="layout-right">
+                                                    
+                                                                <!-- 收藏 -->
+                                <div class="opr-btn-blog btn-favor-blog favor hover">
+                                    <a href="javascript:void(0);" class="btn btn-black-blog " data-blogid="172562" data-blogtype="3" data-userid="" data-thispage="https://my.oschina.net/lichhao/blog/172562">
+                                        <i class="icon-svg icon-star-blog"></i>
+                                     <span id="" class="operate_title">
+                                                                                    收藏
+                                                                             </span>
+                                    </a>
+                                                                    </div>
+                                                                        </div>
+                    <div class="layout-column">
+                        <div class="user-info">
+                                                                                                                <div class="name">
+                                <a href="https://my.oschina.net/lichhao/home" target="_blank">相见欢</a>
+                            </div>
+                        </div>
+                        <div class="data-info text-gary">
+                            <ul>
+                                <li class="time">发表于 <span id="">3年前</span></li>
+                                <li class="read">阅读 <span id="read">49496</span></li>
+                                <li class="favor">收藏 <span id="">299</span></li>
+                                <li class="vote">点赞 <span id="">37</span></li>
+                                <li class="comment">
+                                    <a href="#comment-list" data-href="#comment-list" class="link-blue">
+                                        评论 <span id="comment">16</span>
+                                    </a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                        
+                </div>
+            </div>
+            <!-- 文字链广告 -->
+            <div style="margin-top: 20px;">
+            <p style="margin:0 0 10px 0;"><a data-traceid="blog_detail_above_text_link_1" data-tracepid="blog_detail_above_text_link" style="color:#A00;font-weight:bold;" href="http://click.aliyun.com/m/12178/" target="_blank">独家直播！大数据应用场景全解析&gt;&gt;&gt; </a>&nbsp;&nbsp;<img src="https://my.oschina.net/img/hot3.png" align="absmiddle" style="max-height: 32px; max-width: 32px;"></p>            </div>
+            <!-- 摘要 -->
+                            <div class="blog-abstract">
+                    摘要: SpringMVC使用消息转换器实现请求报文和对象、对象和响应报文之间的自动转换
+                </div>
+                        <!-- 正文 -->
+            <div class="blog-body" id="blogBody">
+                                    <val data-name="blog_content_type" data-value="markdown"></val>
+                                        <div class="loading-gif" id="blogContentLoading"></div>
+                    <textarea style="display: none;" class="noshow_content">#概述
+在SpringMVC中，可以使用@RequestBody和@ResponseBody两个注解，分别完成请求报文到对象和对象到响应报文的转换，底层这种灵活的消息转换机制，就是Spring3.x中新引入的HttpMessageConverter即消息转换器机制。
+
+#Http请求的抽象
+还是回到请求-响应，也就是解析请求体，然后返回响应报文这个最基本的Http请求过程中来。我们知道，在servlet标准中，可以用javax.servlet.ServletRequest接口中的以下方法：
+
+    public ServletInputStream getInputStream() throws IOException; 
+
+来得到一个ServletInputStream。这个ServletInputStream中，可以读取到一个原始请求报文的所有内容。同样的，在javax.servlet.ServletResponse接口中，可以用以下方法：
+
+    public ServletOutputStream getOutputStream() throws IOException;
+
+来得到一个ServletOutputStream，这个ServletOutputSteam，继承自java中的OutputStream，可以让你输出Http的响应报文内容。
+
+让我们尝试着像SpringMVC的设计者一样来思考一下。我们知道，Http请求和响应报文本质上都是一串字符串，当请求报文来到java世界，它会被封装成为一个ServletInputStream的输入流，供我们读取报文。响应报文则是通过一个ServletOutputStream的输出流，来输出响应报文。
+
+我们从流中，只能读取到原始的字符串报文，同样，我们往输出流中，也只能写原始的字符。而在java世界中，处理业务逻辑，都是以一个个有业务意义的**对象**为处理维度的，那么在报文到达SpringMVC和从SpringMVC出去，都存在一个字符串到java对象的阻抗问题。这一过程，不可能由开发者手工转换。我们知道，在Struts2中，采用了OGNL来应对这个问题，而在SpringMVC中，它是HttpMessageConverter机制。我们先来看两个接口。
+
+#HttpInputMessage
+这个类是SpringMVC内部对一次Http请求报文的抽象，在HttpMessageConverter的read()方法中，有一个HttpInputMessage的形参，它正是SpringMVC的消息转换器所作用的受体“请求消息”的内部抽象，消息转换器从“请求消息”中按照规则提取消息，转换为方法形参中声明的对象。
+
+    package org.springframework.http;
+
+    import java.io.IOException;
+    import java.io.InputStream;
+    
+    public interface HttpInputMessage extends HttpMessage {
+    
+    	InputStream getBody() throws IOException;
+    
+    }
+
+#HttpOutputMessage
+这个类是SpringMVC内部对一次Http响应报文的抽象，在HttpMessageConverter的write()方法中，有一个HttpOutputMessage的形参，它正是SpringMVC的消息转换器所作用的受体“响应消息”的内部抽象，消息转换器将“响应消息”按照一定的规则写到响应报文中。
+
+    package org.springframework.http;
+
+    import java.io.IOException;
+    import java.io.OutputStream;
+    
+    public interface HttpOutputMessage extends HttpMessage {
+    
+    	OutputStream getBody() throws IOException;
+    
+    }
+
+
+#HttpMessageConverter
+对消息转换器最高层次的接口抽象，描述了一个消息转换器的一般特征，我们可以从这个接口中定义的方法，来领悟Spring3.x的设计者对这一机制的思考过程。
+
+    package org.springframework.http.converter;
+
+    import java.io.IOException;
+    import java.util.List;
+    
+    import org.springframework.http.HttpInputMessage;
+    import org.springframework.http.HttpOutputMessage;
+    import org.springframework.http.MediaType;
+    
+    public interface HttpMessageConverter&lt;T&gt; {
+    
+    	boolean canRead(Class&lt;?&gt; clazz, MediaType mediaType);
+    
+    	boolean canWrite(Class&lt;?&gt; clazz, MediaType mediaType);
+    
+    	List&lt;MediaType&gt; getSupportedMediaTypes();
+    
+    	T read(Class&lt;? extends T&gt; clazz, HttpInputMessage inputMessage)
+    			throws IOException, HttpMessageNotReadableException;
+    
+    	void write(T t, MediaType contentType, HttpOutputMessage outputMessage)
+    			throws IOException, HttpMessageNotWritableException;
+    
+    }
+
+HttpMessageConverter接口的定义出现了成对的canRead()，read()和canWrite()，write()方法，MediaType是对请求的Media Type属性的封装。举个例子，当我们声明了下面这个处理方法。
+
+    @RequestMapping(value="/string", method=RequestMethod.POST)
+    public @ResponseBody String readString(@RequestBody String string) {
+        return "Read string '" + string + "'";
+    }
+
+在SpringMVC进入readString方法前，会根据@RequestBody注解选择适当的HttpMessageConverter实现类来将请求参数解析到string变量中，具体来说是使用了StringHttpMessageConverter类，它的canRead()方法返回true，然后它的read()方法会从请求中读出请求参数，绑定到readString()方法的string变量中。
+
+当SpringMVC执行readString方法后，由于返回值标识了@ResponseBody，SpringMVC将使用StringHttpMessageConverter的write()方法，将结果作为String值写入响应报文，当然，此时canWrite()方法返回true。
+
+我们可以用下面的图，简单描述一下这个过程。
+
+![消息转换图][1]
+
+#RequestResponseBodyMethodProcessor
+将上述过程集中描述的一个类是org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor，这个类同时实现了HandlerMethodArgumentResolver和HandlerMethodReturnValueHandler两个接口。前者是将请求报文绑定到处理方法形参的策略接口，后者则是对处理方法返回值进行处理的策略接口。两个接口的源码如下：
+
+    package org.springframework.web.method.support;
+    
+    import org.springframework.core.MethodParameter;
+    import org.springframework.web.bind.WebDataBinder;
+    import org.springframework.web.bind.support.WebDataBinderFactory;
+    import org.springframework.web.context.request.NativeWebRequest;
+    
+    public interface HandlerMethodArgumentResolver {
+    
+    	boolean supportsParameter(MethodParameter parameter);
+    
+    	Object resolveArgument(MethodParameter parameter,
+    						   ModelAndViewContainer mavContainer,
+    						   NativeWebRequest webRequest,
+    						   WebDataBinderFactory binderFactory) throws Exception;
+    
+    }
+
+    package org.springframework.web.method.support;
+    
+    import org.springframework.core.MethodParameter;
+    import org.springframework.web.context.request.NativeWebRequest;
+    
+    public interface HandlerMethodReturnValueHandler {
+    
+    	boolean supportsReturnType(MethodParameter returnType);
+    
+    	void handleReturnValue(Object returnValue,
+    						   MethodParameter returnType,
+    						   ModelAndViewContainer mavContainer,
+    						   NativeWebRequest webRequest) throws Exception;
+    
+    }
+
+RequestResponseBodyMethodProcessor这个类，同时充当了方法参数解析和返回值处理两种角色。我们从它的源码中，可以找到上面两个接口的方法实现。
+
+对HandlerMethodArgumentResolver接口的实现：
+
+	public boolean supportsParameter(MethodParameter parameter) {
+		return parameter.hasParameterAnnotation(RequestBody.class);
+	}
+
+	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+
+		Object argument = readWithMessageConverters(webRequest, parameter, parameter.getGenericParameterType());
+
+		String name = Conventions.getVariableNameForParameter(parameter);
+		WebDataBinder binder = binderFactory.createBinder(webRequest, argument, name);
+
+		if (argument != null) {
+			validate(binder, parameter);
+		}
+
+		mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
+
+		return argument;
+	}
+
+对HandlerMethodReturnValueHandler接口的实现
+
+	public boolean supportsReturnType(MethodParameter returnType) {
+		return returnType.getMethodAnnotation(ResponseBody.class) != null;
+	}
+
+    	public void handleReturnValue(Object returnValue, MethodParameter returnType,
+			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
+			throws IOException, HttpMediaTypeNotAcceptableException {
+
+		mavContainer.setRequestHandled(true);
+		if (returnValue != null) {
+			writeWithMessageConverters(returnValue, returnType, webRequest);
+		}
+	}
+
+看完上面的代码，整个HttpMessageConverter消息转换的脉络已经非常清晰。因为两个接口的实现，分别是以是否有@RequestBody和@ResponseBody为条件，然后分别调用HttpMessageConverter来进行消息的读写。
+
+如果你想问，怎么样跟踪到RequestResponseBodyMethodProcessor中，请你按照前面几篇博文的思路，然后到这里[spring-mvc-showcase][2]下载源码回来，对其中HttpMessageConverter相关的例子进行debug，只要你肯下功夫，相信你一定会有属于自己的收获的。
+
+#思考
+张小龙在谈微信的本质时候说：“微信只是个平台，消息在其中流转”。在我们对SpringMVC源码分析的过程中，我们可以从HttpMessageConverter机制中领悟到类似的道理。在SpringMVC的设计者眼中，一次请求报文和一次响应报文，分别被抽象为一个请求消息HttpInputMessage和一个响应消息HttpOutputMessage。
+
+处理请求时，由合适的消息转换器将请求报文绑定为方法中的形参对象，在这里，同一个对象就有可能出现多种不同的消息形式，比如json和xml。同样，当响应请求时，方法的返回值也同样可能被返回为不同的消息形式，比如json和xml。
+
+在SpringMVC中，针对不同的消息形式，我们有不同的HttpMessageConverter实现类来处理各种消息形式。但是，只要这些消息所蕴含的“有效信息”是一致的，那么各种不同的消息转换器，都会生成同样的转换结果。至于各种消息间解析细节的不同，就被屏蔽在不同的HttpMessageConverter实现类中了。
+
+
+  [1]: http://static.oschina.net/uploads/space/2013/1026/091627_zgNV_118997.png
+  [2]: https://github.com/spring-projects/spring-mvc-showcase</textarea>
+                    <div class='BlogContent'></div>
+                            </div>
+            <div class="blog-opr">
+                <!-- 版权 -->
+                <div class="blog-copyright">
+                                            <span title="OSCHINA 博客文章版权属于作者，受法律保护。未经作者同意不得转载。">© 著作权归作者所有</span>
+                                    </div>
+                <!-- 分类、标签、字数 -->
+                <div class="related-info">
+                    <ul>
+                                                    <li class="classify">分类：<span id="classify"><a href="https://my.oschina.net/lichhao/blog?catalog=285356">SpringMVC源码分析</a></span></li>
+                                                <li class="Words">字数：<span id="Words">1747</span></li>
+                                            </ul>
+                </div>
+                <div class="tags">
+                                            标签：
+                                                                                                    <span class="tag" id="tag"><a href="https://my.oschina.net/lichhao/blog?search=SpringMVC">SpringMVC</a></span>
+                                                            </div>
+            </div>
+            <!-- 赞、收藏、分享 -->
+            <div class="operate">
+                <ul>
+                                                            <val data-name="isAllowBlogDonate" data-value="true"></val>
+                                        <!-- 打賞 -->
+                    <li class="opr-btn-blog btn-reward-blog ">
+                        <a href="javascript:void(0);" data-popupbox-model="reward" class="btn btn-black-blog">
+                            <i class="icon-svg icon-reward-blog"></i>
+                             <span id="" class="operate_title">
+                                打赏
+                             </span>
+                        </a>
+                    </li>
+                                        <!-- 点赞 -->
+                    <li class="opr-btn-blog btn-like-blog ">
+                                                <a href="javascript:void(0);" class="btn btn-black-blog" onclick="page.vote(172562);" >
+                            <i class="icon-svg icon-thumbs-o-up-blog"></i>
+                             <span id="" class="operate_title">
+                                                                    点赞
+                                                             </span>
+                        </a>
+                    </li>
+                                            <!-- 收藏 -->
+                        <li class="opr-btn-blog btn-favor-blog hover">
+                            <a href="javascript:void(0);" class="btn btn-black-blog " data-blogid="172562" data-blogtype="3" data-userid="" data-thispage="https://my.oschina.net/lichhao/blog/172562">
+                                <i class="icon-svg icon-star-blog"></i>
+                             <span id="" class="operate_title">
+                                                                    收藏
+                                                             </span>
+                            </a>
+                                                    </li>
+
+                                        <!-- 分享 -->
+                    <li class="opr-btn-blog btn-share-blog hover">
+                        <a href="javascript:void(0);" class="btn btn-black-blog">
+                            <i class="icon-svg icon-share-o-blog"></i>
+                            分享
+                        </a>
+                        <div class="operate-dropdown share-dropdown">
+                            <span class="share-title">分享到：</span>
+                            <div class="bdsharebuttonbox">
+                                <a href="#" class="bds_mshare" data-cmd="mshare" title="分享到一键分享">一键分享</a>
+                                <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+                                <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+                                <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+                                <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">新浪微博</a>
+                                <a href="#" class="bds_sqq" data-cmd="sqq" title="分享到QQ好友">QQ好友</a>
+                                <a href="#" class="bds_youdao" data-cmd="youdao" title="分享到有道云笔记">有道云笔记</a>
+                            </div>
+                            <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":["mshare","qzone","tsina","weixin","tqq","sqq"],"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/js/bdshare_api/share.js?t=1466497475000'];</script>
+                        </div>
+                    </li>
+                </ul>
+                <div data-type="tip" data-tip-type="fixed">
+                    <div  class="tooltips" id="error_tip"></div>
+                </div>
+
+            </div>
+                        <div class="reward-list hide">
+                <div class="reward-list-title">
+                    共有 <span id="reward-num"></span>  人打赏支持<span id="donate_money"></span>
+                </div>
+                                <div class="donate-user-list" id="donate_user_list">
+                    <p></p>
+                </div>
+            </div>
+                    </div>
+
+        <!-- 个人名片 -->
+        <div class="user-card">
+            <div class="blog-wrapper">
+                <div class="layout-flex">
+                    <div class="flex-grow">
+                        <div class="layout-flex">
+                            <div class="flex-left">
+                                <div class="user-info">
+                                    <div class="icon">
+                                        <a href="https://my.oschina.net/lichhao/home" class="article_editor_head_img" target="_blank"><img src="https://static.oschina.net/uploads/user/59/118997_100.jpeg?t=1480314123000" align="absmiddle" alt="相见欢" title="相见欢" class="LargePortrait"/></a>
+                                    </div>
+                                    <div class="follow-status">
+                                                                                    
+                                            <span class="btn btn-green btn-follow "
+                                             data-follow-value="1" 
+                                                                                        data-follow="btn" data-fansid="118997"> + 关注 </span>
+                                                                            </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+
+                                <div class="opus-info">
+                                    <div class="title">
+                                        <a href="https://my.oschina.net/lichhao/home" class="name" target="_blank">相见欢
+                                        </a>
+                                        <div class="medal medal-osc">
+                                                                                                                                                                            </div>
+                                    </div>
+                                    <div class="card-post-info">
+                                                                                <span class="card-post">
+                                            <i class="icon-svg icon-post-blog"></i>
+                                            程序员
+                                        </span>
+                                                                                                                        <span class="card-address">
+                                             <i class="icon-svg icon-address-blog"></i>
+                                             广州
+                                        </span>
+                                                                            </div>
+                                    <div  class="opus-opr">
+                                        <div class="opus-opr-item">粉丝 <span>503</span></div>
+                                        <div class="opus-opr-item">博文 <span>8</span></div>
+                                        <div class="opus-opr-item">码字总数 <span>19293 </span></div>
+                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-right">
+                        <!-- 技能雷达 -->
+                        <div class="user-radar hide" data-user="118997">
+                            <div id="radar-skill" style="width: 200px;height: 120px; margin: auto;" data-detail="https://www.oschina.net/radar/lichhao">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 相关博客 -->
+                        <div class="blog-related">
+            <div class="blog-wrapper">
+                 <div class="panel panel-related" id="blog-related">
+                     <div class="panel-heading">
+                          相关博客
+                     </div>
+                     <div class="panel-body">
+                         <div class="related-blogs-list flex-item">
+                                                                                            <div class="blog-item">
+                                    <div class="layout-flex">
+                                                                              <div class="flex-grow">
+                                            <a href="https://my.oschina.net/u/2250875/blog/383166" class="title" title="springmvc 使用" target="_self">
+                                                springmvc 使用
+                                            </a>
+                                            <div class="author-info">
+                                                <span class="icon">
+                                                    <img src="https://static.oschina.net/uploads/user/1125/2250875_50.jpg?t=1413005091000 " />
+                                                </span>
+                                                foreach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="relation-data text-right">
+                                        <span class="view data-item"><i class="icon-svg icon-eye"></i>634</span>
+                                        <a class="reply data-item" href="http://my.oschina.com:8888/J25/blog/190490#comment-list" target="_blank"><i class="icon-svg icon-reply"></i>0</a>
+                                    </div>
+                                </div>
+                                                                                                                            <div class="blog-item">
+                                    <div class="layout-flex">
+                                                                                  <span class="img">
+                                                <img src="https://static.oschina.net/uploads/space/2016/1218/092844_DnzW_2625464.gif" />
+                                           </span>
+                                                                              <div class="flex-grow">
+                                            <a href="https://my.oschina.net/pmos/blog/808610" class="title" title="SpringMVC" target="_self">
+                                                SpringMVC
+                                            </a>
+                                            <div class="author-info">
+                                                <span class="icon">
+                                                    <img src="https://static.oschina.net/uploads/user/1312/2625464_50.jpg?t=1461762291000 " />
+                                                </span>
+                                                pmos
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="relation-data text-right">
+                                        <span class="view data-item"><i class="icon-svg icon-eye"></i>66</span>
+                                        <a class="reply data-item" href="http://my.oschina.com:8888/J25/blog/190490#comment-list" target="_blank"><i class="icon-svg icon-reply"></i>0</a>
+                                    </div>
+                                </div>
+                                                                                                                            <div class="blog-item">
+                                    <div class="layout-flex">
+                                                                              <div class="flex-grow">
+                                            <a href="https://my.oschina.net/u/3169998/blog/836681" class="title" title="SpringMvc" target="_self">
+                                                SpringMvc
+                                            </a>
+                                            <div class="author-info">
+                                                <span class="icon">
+                                                    <img src="https://static.oschina.net/uploads/user/1584/3169998_50.jpeg?t=1487725214000 " />
+                                                </span>
+                                                ZGXQ
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="relation-data text-right">
+                                        <span class="view data-item"><i class="icon-svg icon-eye"></i>27</span>
+                                        <a class="reply data-item" href="http://my.oschina.com:8888/J25/blog/190490#comment-list" target="_blank"><i class="icon-svg icon-reply"></i>0</a>
+                                    </div>
+                                </div>
+                                                                                     </div>
+                     </div>
+                 </div>
+            </div>
+        </div>
+                <!-- 评论 -->
+        <div class="blog-comments">
+            <div class="blog-wrapper">
+                <div class="panel panel-comments" id="comment-list">
+                    <div class="panel-heading" id="blog-comments-list">评论
+                        <em>
+                            (<span class="reply_count">16</span>)
+                        </em>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel-comment-form">
+                            <!-- 发表评论表单 -->
+                                                            <!--  -->
+<val data-name="emoji_js_url" data-value="/build/www/vendor/emoji/emoji_github.js?t=1471884352000"></val>
+<val data-name="emoji_css_url" data-value="/build/www/vendor/emoji/emoji.min.css?t=1471884352000"></val>
+<div class='SpaceList'>
+    <a name="comments" id="postform"></a>
+        <div class="layout BlogCommentForm blog-comment-form comment-emoji">
+                    <form id="form_comment" action="/action/blog/add_comment?blog=172562" method="POST">
+                                                                                                <div class="comment_form layout-column">
+                    <textarea name="content" id="wmd-input" placeholder=""></textarea>
+                    <div class="layout">
+                        <div class="layout-right">
+                            <span class="text-muted">
+                                Ctrl+Enter
+                            </span>
+                            <button type="submit" class="btn btn-green blg_submit_btn">发表评论</button>
+                        </div>
+                        <div class="layout-column">
+                            <a href="javascript:;" class="blog_emotion">
+                                <i class="icon-svg icon-emotions-hollow-gray"></i>
+                                <div data-emoji="wrapper">
+                                    <ul data-emoji="nav">
+                                        <li data-emoji-nav="People" class="active">People</li>
+                                        <li data-emoji-nav="Nature">Nature</li>
+                                        <li data-emoji-nav="Objects">Objects</li>
+                                        <li data-emoji-nav="Places">Places</li>
+                                        <li data-emoji-nav="Symbols">Symbols</li>
+                                    </ul>
+                                    <div data-emoji="panel">
+                                        <div data-emoji-item="People" class="active"></div>
+                                        <div data-emoji-item="Nature"></div>
+                                        <div data-emoji-item="Objects"></div>
+                                        <div data-emoji-item="Places"></div>
+                                        <div data-emoji-item="Symbols"></div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="javascript:page.insert_projects();" class="blog_soft">
+                                <i class="icon-svg icon-project-hollow-gray"></i>
+                            </a>
+                            <span class="NoData" id="cmt_tip"></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+                                                    </div>
+    </div>
+<div id='inline_reply_editor' style='display:none;'>
+    <div class="BlogCommentForm blog-comment-form">
+        <form id="form_inline_comment" action="/action/blog/add_comment?blog=172562" method="POST">
+          <input type='hidden' id='inline_reply_id' name='reply_id' value=''/>
+          <textarea name="content" id="ccom_content""></textarea>
+          <div class="layout">
+              <div class="layout-right">
+                <input type="button" value="关闭" class="btn btn-text" id='btn_close_inline_reply' />
+                <input type="submit" value="回复" id="btn_comment" class="btn btn-green"/> 
+              </div>
+              <div class="layout-column">
+                  插入：
+                    <a href="javascript:;" class="blog_emotion">
+                        <i class="icon-svg icon-emotions-hollow-gray"></i>
+                        <div data-emoji="wrapper">
+                            <ul data-emoji="nav">
+                                <li data-emoji-nav="People" class="active">People</li>
+                                <li data-emoji-nav="Nature">Nature</li>
+                                <li data-emoji-nav="Objects">Objects</li>
+                                <li data-emoji-nav="Places">Places</li>
+                                <li data-emoji-nav="Symbols">Symbols</li>
+                            </ul>
+                            <div data-emoji="panel">
+                                <div data-emoji-item="People" class="active"></div>
+                                <div data-emoji-item="Nature"></div>
+                                <div data-emoji-item="Objects"></div>
+                                <div data-emoji-item="Places"></div>
+                                <div data-emoji-item="Symbols"></div>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="javascript:page.insert_projects_c();" class="blog_soft">
+                        <i class="icon-svg icon-project-hollow-gray"></i>
+                    </a>
+                    <span class="NoData" id="ficmp_msg" style="color:#F00"></span>
+              </div>
+          </div>
+        </form>
+    </div>
+</div>                                                    </div>
+                        <div class="panel-list" id="BlogComments">
+                                                            
+                    <div class="comment-item comment-emoji" id="cmt_172562_190591_276601894" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/flashsword" target="_blank"><img src="https://static.oschina.net/uploads/user/95/190591_50.jpg?t=1396186877000" align="absmiddle" alt="黄亿华" title="黄亿华" class="SmallPortrait" user="190591"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/flashsword" target="_blank" name="rpl_276601894" class="user">黄亿华</a></div>
+                            <div class="user-info"><span>1</span>楼 2013/10/29 09:17</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        终于更新了，博主的系列文章隔的有点久啊 
+                    </div>
+                    <div id='inline_reply_of_172562_190591_276601894' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_659120_276602628" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/659120" target="_blank"><img src="https://static.oschina.net/uploads/user/329/659120_50.jpg?t=1397786312000" align="absmiddle" alt="井底的蜗牛" title="井底的蜗牛" class="SmallPortrait" user="659120"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/659120" target="_blank" name="rpl_276602628" class="user">井底的蜗牛</a></div>
+                            <div class="user-info"><span>2</span>楼 2013/10/29 10:19</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        赞一个~  会持续关注博主接下来的作品,期待!!
+                    </div>
+                    <div id='inline_reply_of_172562_659120_276602628' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_118997_276603528" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/lichhao" target="_blank"><img src="https://static.oschina.net/uploads/user/59/118997_50.jpeg?t=1480314123000" align="absmiddle" alt="相见欢" title="相见欢" class="SmallPortrait" user="118997"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/lichhao" target="_blank" name="rpl_276603528" class="user">相见欢</a></div>
+                            <div class="user-info"><span>3</span>楼 2013/10/29 11:34</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        <div class=ref><h4>引用来自“黄亿华”的评论</h4><p>终于更新了，博主的系列文章隔的有点久啊 </p></div>草稿存在很久了，改了很久也不是很满意。干脆就把自己想到的，都说一下，还是对着源码看，收获更多。今年换了工作，接触的东西可能不光是java了，其他语言也要学。业余也鼓捣一下Go。博客还会接着写，多沉淀，不说废话就可以了。
+                    </div>
+                    <div id='inline_reply_of_172562_118997_276603528' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_1187138_276870439" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/guqj" target="_blank"><img src="https://static.oschina.net/uploads/user/593/1187138_50.jpg?t=1410746180000" align="absmiddle" alt="guquanjiang" title="guquanjiang" class="SmallPortrait" user="1187138"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/guqj" target="_blank" name="rpl_276870439" class="user">guquanjiang</a></div>
+                            <div class="user-info"><span>4</span>楼 2013/11/13 22:16</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        求教楼主是以怎样的方式去看spring源码的？
+                    </div>
+                    <div id='inline_reply_of_172562_1187138_276870439' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_1187138_276870442" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/guqj" target="_blank"><img src="https://static.oschina.net/uploads/user/593/1187138_50.jpg?t=1410746180000" align="absmiddle" alt="guquanjiang" title="guquanjiang" class="SmallPortrait" user="1187138"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/guqj" target="_blank" name="rpl_276870442" class="user">guquanjiang</a></div>
+                            <div class="user-info"><span>5</span>楼 2013/11/13 22:16</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        求教楼主是以怎样的方式去看spring源码的？
+                    </div>
+                    <div id='inline_reply_of_172562_1187138_276870442' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_69207_276957846" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/qinxike" target="_blank"><img src="/img/portrait.gif?t=1451961935000" align="absmiddle" alt="覃熙科" title="覃熙科" class="SmallPortrait" user="69207"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/qinxike" target="_blank" name="rpl_276957846" class="user">覃熙科</a></div>
+                            <div class="user-info"><span>6</span>楼 2013/11/18 23:40</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        支持楼主，向楼主学习。那天碰到中文处理问题，解决方法怪怪的，不知道除了新建一个string的处理类并指定编码外，还有什么更好的办法，希望下个版本官方把它修复了。 
+                    </div>
+                    <div id='inline_reply_of_172562_69207_276957846' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_875387_278371575" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/875387" target="_blank"><img src="/img/portrait.gif?t=1451961935000" align="absmiddle" alt="dizh" title="dizh" class="SmallPortrait" user="875387"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/875387" target="_blank" name="rpl_278371575" class="user">dizh</a></div>
+                            <div class="user-info"><span>7</span>楼 2014/02/08 19:11</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        鞋的很好啊。
+                    </div>
+                    <div id='inline_reply_of_172562_875387_278371575' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_1580700_284713279" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/1580700" target="_blank"><img src="/img/portrait.gif?t=1451961935000" align="absmiddle" alt="mejava" title="mejava" class="SmallPortrait" user="1580700"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/1580700" target="_blank" name="rpl_284713279" class="user">mejava</a></div>
+                            <div class="user-info"><span>8</span>楼 2015/02/10 19:06</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        也想知道楼主是如何去分析源码的，希望能给点经验
+                    </div>
+                    <div id='inline_reply_of_172562_1580700_284713279' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_2338224_287787318" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/2338224" target="_blank"><img src="https://static.oschina.net/uploads/user/1169/2338224_50.jpg?t=1434522109000" align="absmiddle" alt="沧海一刀" title="沧海一刀" class="SmallPortrait" user="2338224"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/2338224" target="_blank" name="rpl_287787318" class="user">沧海一刀</a></div>
+                            <div class="user-info"><span>9</span>楼 2015/08/07 16:36</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        666666666666666
+                    </div>
+                    <div id='inline_reply_of_172562_2338224_287787318' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_1997549_287960653" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/1997549" target="_blank"><img src="/img/portrait.gif?t=1451961935000" align="absmiddle" alt="最爱海贼王" title="最爱海贼王" class="SmallPortrait" user="1997549"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/1997549" target="_blank" name="rpl_287960653" class="user">最爱海贼王</a></div>
+                            <div class="user-info"><span>10</span>楼 2015/08/17 17:21</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        好文章，赞一下！
+                    </div>
+                    <div id='inline_reply_of_172562_1997549_287960653' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_2437549_287994978" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/johnnyliao" target="_blank"><img src="https://static.oschina.net/uploads/user/1218/2437549_50.jpg?t=1439813870000" align="absmiddle" alt="輕風" title="輕風" class="SmallPortrait" user="2437549"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/johnnyliao" target="_blank" name="rpl_287994978" class="user">輕風</a></div>
+                            <div class="user-info"><span>11</span>楼 2015/08/19 17:01</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        学习完了博主的系列博客，让我学到了很多，但看博主很久没更新了不知还会更否，期待中...
+                    </div>
+                    <div id='inline_reply_of_172562_2437549_287994978' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_2413578_289518844" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/hischoolboy" target="_blank"><img src="https://static.oschina.net/uploads/user/1206/2413578_50.jpg?t=1436629023000" align="absmiddle" alt="hischoolboy" title="hischoolboy" class="SmallPortrait" user="2413578"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/hischoolboy" target="_blank" name="rpl_289518844" class="user">hischoolboy</a></div>
+                            <div class="user-info"><span>12</span>楼 2015/11/15 21:30</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        赞赞赞赞
+                    </div>
+                    <div id='inline_reply_of_172562_2413578_289518844' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_166969_291294208" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/myCoin" target="_blank"><img src="https://static.oschina.net/uploads/user/83/166969_50.jpg" align="absmiddle" alt="ljt" title="ljt" class="SmallPortrait" user="166969"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/myCoin" target="_blank" name="rpl_291294208" class="user">ljt</a></div>
+                            <div class="user-info"><span>13</span>楼 2016/02/26 15:17</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        好文章，分析的非常透彻，终于明白 HandlerMethodArgumentResolver 的工作原理
+                    </div>
+                    <div id='inline_reply_of_172562_166969_291294208' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_556878_292918480" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/556878" target="_blank"><img src="https://static.oschina.net/uploads/user/278/556878_50.gif?t=1419003514000" align="absmiddle" alt="kleen" title="kleen" class="SmallPortrait" user="556878"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/556878" target="_blank" name="rpl_292918480" class="user">kleen</a></div>
+                            <div class="user-info"><span>14</span>楼 2016/05/30 15:13</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        看完了。有所收获。 谢谢
+                    </div>
+                    <div id='inline_reply_of_172562_556878_292918480' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_2600851_296755985" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/2600851" target="_blank"><img src="/img/portrait.gif?t=1451961935000" align="absmiddle" alt="山上的阿牛哥" title="山上的阿牛哥" class="SmallPortrait" user="2600851"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/2600851" target="_blank" name="rpl_296755985" class="user">山上的阿牛哥</a></div>
+                            <div class="user-info"><span>15</span>楼 2017/01/07 17:05</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        非常感谢博主的系列博客，读完几篇之后对SpringMVC的初始化和请求转发明白了很多！
+                    </div>
+                    <div id='inline_reply_of_172562_2600851_296755985' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+                            <div class="comment-item comment-emoji" id="cmt_172562_586065_296842605" >
+            <div class="layout">
+                <div class="layout-left">
+                    <!-- 头像 -->
+                    <div class="icon">
+                        <a href="https://my.oschina.net/u/586065" target="_blank"><img src="https://static.oschina.net/uploads/user/293/586065_50.jpeg?t=1485161287000" align="absmiddle" alt="TJW123" title="TJW123" class="SmallPortrait" user="586065"/></a>
+                    </div>
+                </div>
+                <div class="layout-column right">
+                    <div class="layout">
+                                                <div class="layout-column">
+                            <div class="user-name"><a href="https://my.oschina.net/u/586065" target="_blank" name="rpl_296842605" class="user">TJW123</a></div>
+                            <div class="user-info"><span>16</span>楼 2017/01/12 17:23</div>
+                        </div>
+                    </div>
+
+                    <!-- 评论内容 -->
+                    <div class="comment-content" data-emoji-render='true'>
+                        <div class='ref'><h4>引用来自“山上的阿牛哥”的评论</h4>非常感谢博主的系列博客，读完几篇之后对SpringMVC的初始化和请求转发明白了很多！</div>可以抽空看看这个 http://blog.csdn.net/column/details/13023.html
+                    </div>
+                    <div id='inline_reply_of_172562_586065_296842605' class='inline_reply'></div>
+                </div>
+            </div>
+        </div>
+            <div class="pages sm-hide">
+        </div>                                                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 微信分享二维码 -->
+       <!--  <div class="float-share md-hide">
+            <div class="weixin-share" id="weixin-share">
+            </div>
+            <span>微信分享</span>
+        </div> -->
+
+        <!-- 右侧工具条 -->
+        <div class="tool-bar blog-tool-bar md-hide">
+            <div class="item tool-top">
+                <a href="javascript:void(0)" class="over">
+                    <div class="icon">
+                        <i class="icon-svg icon-go-top"></i>
+                    </div>
+                    <div class="txt">顶部</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="reward-popups" data-popups-for="reward">
+    <span data-popups-close="true">×</span>
+    <div data-popups="body">
+        <form action="" method="post" id="blog_donate_form">
+            <div class="form-wapper">
+                <div class="blogger-info text-center">
+                    <span class="icon">
+                        <a href="https://my.oschina.net/lichhao/home" class="article_editor_head_img" target="_blank"><img src="https://static.oschina.net/uploads/user/59/118997_100.jpeg?t=1480314123000" align="absmiddle" alt="相见欢" title="相见欢" class="LargePortrait"/></a>
+                    </span>
+                    <div class="text">
+                        如果觉得我的文章对您有用，请随意打赏。您的支持将鼓励我继续创作！
+                    </div>
+                </div>
+                <div class="form-item">
+                    <div class="form-label">
+                        <span class="font-red">*</span>
+                        金额(元)
+                    </div>
+                    <div class="form-ctrl">
+                        <div>
+                            <input name="payMoney" value="2" type="text" placeholder="请输入金额￥" />
+                            <input name="money" value="2" type="hidden" placeholder="请输入金额￥" />
+                        </div>
+                        <div class="reward-money-box">
+                            <span data-value="1" class="reward-money">￥1</span>
+                            <span data-value="5" class="reward-money">￥5</span>
+                            <span data-value="10" class="reward-money">￥10</span>
+                            <span data-value="20" class="reward-money">￥20</span>
+                            <span data-value="" class="reward-money other-money active">其他金额</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <div class="form-label">
+                        打赏人
+                    </div>
+                    <div class="form-ctrl">
+                        <input type="text" name="donaterName" maxlength="100" value="" placeholder="请输入姓名/昵称/邮箱" />
+                    </div>
+                </div>
+                <div class="form-item items-center">
+                    <div class="form-label">
+                        留言
+                    </div>
+                    <div class="form-ctrl">
+                        <textarea maxlength="100" name="message" id="" cols="30" rows="3" placeholder="你想对TA说"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-item items-center">
+                    <div class="form-label">
+                        <span class="font-red">*</span>
+                        支付类型
+                    </div>
+                    <div class="form-ctrl">
+                        <div class="reward-way form-radios reward-alipay">
+                            <input type="radio" value="alipay" id="rewardAliPay" checked="checked" name="reward-way">
+                            <label for="rewardAliPay">
+                                <span class="hide">支付宝支付</span>
+                            </label>
+                        </div>
+                        <div class="reward-way form-radios reward-wechat">
+                            <input type="radio" value="wepay" id="rewardWechat" name="reward-way">
+                            <label for="rewardWechat">
+                                <i class="icon-svg icon-wechat"></i>
+                                <span class="">微信支付</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                                <div class="hide">
+                    <input name="objType" type="hidden" value="16344358">
+                    <input name="objId" type="hidden" value="172562">
+                    <input name="donater" type="hidden" value="0">
+                    <input name="subject" maxlength="50" type="hidden" value="SpringMVC源码剖析（五)-消息转换器HttpMessageConverter">
+                    <input name="author" type="hidden" value="118997">
+                    <input name="returnUrl" maxlength="900" type="hidden" value="https://my.oschina.net/lichhao/blog/172562">
+                    <input name="notifyUrl" maxlength="900" type="hidden" value="https://my.oschina.net/action/blog/paySuccess">
+                    <input name="sign" type="hidden" value="">
+                </div>
+                <div class="form-button text-right">
+                    <input type="button"  class="btn btn-orange" value="打赏" id="blog_donate_button"/>
+                </div>
+            </div>
+
+            <div class="reward-status reward-wechat-box text-center">
+                <span class="wechat-qr">
+                    <i class="icon-svg icon-scan-green"></i>
+                    微信扫码支付
+                </span>
+                <div class="wepay-amount">
+                    打赏金额: <span class="h1 font-green">￥<em id="wepayAmount"></em></span>
+                </div>
+                <span class="wechat-qr-img" id="result_area">
+                </span>
+            </div>
+
+            <div class="reward-status reward-success text-center">
+                <span class="wechat-qr">
+                    <i class="icon-svg icon-wechat"></i>
+                    已支付成功
+                </span>
+                <div>
+                    打赏金额: <span class="h1 font-green">￥<em id="wepayAmount"></em></span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div data-popups="mask">
+
+</div>
+    <script type="text/javascript" src="/action/visit/blog?id=172562" defer="defer"></script>
+    <script type="text/javascript" src="/action/visit/space?id=118997"></script>
+
+<val data-name="radar_chart_js_url" data-value="/dist/www/vendor/radarChart/radarChart.js?t=1475078300000"></val>
+<script>
+    window.addEventListener("load", function() {
+        var radarChartJsUrl = $("val[data-name=radar_chart_js_url]").data("value");
+        if(radarChartJsUrl) {
+            require.requireJS(radarChartJsUrl, function() {
+                // 雷达图配置选项
+                function getRadarOption(skills, values, maxLevel) {
+                    var radarChartOptions = {},
+                        skillArr = skills ? skills : [],
+                        valuesArr = values ? values : [],
+                        maxLevelArr = [];
+                        valuesArr.forEach(function(element, index) {
+                            maxLevelArr.push(maxLevel);
+                        });
+
+                    radarChartOptions.data = {
+                        maxValue: maxLevelArr,
+                        value: valuesArr,
+                        description: skillArr
+                    };
+                    radarChartOptions.config = {
+                        scale: 0.9,
+                        dataFill: {
+                            fillStyle: "rgba(24, 236, 111, .4)"
+                        },
+                        bg: {
+                            layer: 4,
+                            evenFillStyle: "#828282",
+                            oddFillStyle: "#828282",
+                            evenStrokeStyle: "#ccc",
+                            oddStrokeStyle: "#ccc"
+                        },
+                        dataCircle: {
+                            r: 1,
+                            strokeStyle: "#18ec6f",
+                            fillStyle: "#18ec6f",
+                            lineWidth: 0.5
+                        },
+                        dataLine: {
+                            strokeStyle: "#18ec6f",
+                            lineWidth: 2
+                        },
+                        font: {
+                            fontColor: "#eee"
+                        }
+                    };
+                    return radarChartOptions;
+                }
+                var sendRequest = function () {
+                    var user_id = $("val[data-name='owner_id']").attr("data-value");
+                    $.ajax({
+                        type: "POST",
+                        url: "/action/radar/searchUserRadarMap",
+                        data: {user_id: user_id},
+                        dataType: "json",
+                        success: function (msg) {
+                            if (msg.result) {
+                                // 显示雷达面板
+                                $(".user-radar").show();
+                                radarChart.init(document.querySelector("#radar-skill"), getRadarOption(msg.data.skills, msg.data.skillsLevel, msg.data.maxSkillLevel));
+                                // 打开雷达详情页
+                                var radarDetailLink = $('#radar-skill').data("detail");
+                                if (radarDetailLink) {
+                                    $('#radar-skill').on('click', function (params) {
+                                        window.open(radarDetailLink);
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+                sendRequest();
+            });
+        }
+    }, false);
+</script>
+
+            <script>
+        window.addEventListener("load", function() {
+            (function(){
+                var bp = document.createElement('script');
+                var curProtocol = window.location.protocol.split(':')[0];
+                if (curProtocol === 'https') {
+                    bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+                }
+                else {
+                    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                }
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(bp, s);
+            })();
+        });
+    </script>
+    <script type="text/javascript">
+     (function (ww, dt) {
+         ww.__gac = {
+             domain: 'www.oschina.net'
+         };
+         if(!(/\/marketing\/ad-slice/.test(location.href))){
+             var script = dt.createElement('script');
+             script.setAttribute('type', 'text/javascript');
+             script.setAttribute('src', '//www.oschina.net/public/javascripts/cjl/ga.js?t=20160926');
+             dt.body.appendChild(script);
+         }
+     } (window, window.document));
+ </script>
+            </div>
+                        <script type="text/javascript" src="/dist/www/js/common.min.js?t=1479139314000"></script>
+            <script type="text/javascript" src="/dist/www/js/blog.min.js?t=1487010965000"></script>
+                <div class="footer">
+    <div class="container">
+        <div class="layout">
+            <div class="layout-right">
+                <div class="oscapp">
+                    <span>开源中国手机客户端：</span>
+                    <a href="https://www.oschina.net/app" class="android" title="Android客户端">Android</a>
+                    <a href="https://www.oschina.net/app" class="iphone" title="iPhone 客户端">iPhone</a>
+                    <a href="https://www.oschina.net/app" class="wp7" title="Windows Phone 客户端">WP7</a>
+                </div>
+            </div>
+            <div class="layout-column">
+                <div>
+                    &copy; 开源中国(OSChina.NET) | <a href="https://www.oschina.net/home/aboutosc">关于我们</a> | <a href="mailto:market@oschina.cn">广告联系</a> | <a href="http://weibo.com/oschina2010" target="_blank">@新浪微博</a> | <a href="https://m.oschina.net/">开源中国手机版</a> | <a href='http://www.miitbeian.gov.cn/' target='_blank' style='color:#737573;text-decoration:none;'>粤ICP备12009483号-3</a></div>
+                 <div>开源中国社区(OSChina.net)是工信部 <a href='http://www.copu.org.cn/' target='_blank'>开源软件推进联盟</a> 指定的官方社区</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+    
+<!-- Generated by OsChina.NET (init:0[ms],page:204[ms],ip:180.168.65.234) -->

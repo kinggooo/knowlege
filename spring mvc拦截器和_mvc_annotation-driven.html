@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>spring mvc拦截器和&lt;mvc:annotation-driven /&gt;的详解 - 自行车上的程序员 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=03KQeESEmpLfzDqUo0NiWUg5Zd5aRam3JHBZTK05Wug1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="/skins/darkgreentrip/bundle-darkgreentrip.css?v=xPXJVC4GCITs1yYYgSeLkcicCxapqseaPVQLFGMO1wc1"/>
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="/skins/darkgreentrip/bundle-darkgreentrip-mobile.css?v=mBRNN_JHLuVdC_FKuaeAdcneapv86mHGwJNCm42RcHA1"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/yangzhilong/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/yangzhilong/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/yangzhilong/wlwmanifest.xml"/>
+<script src="//common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'yangzhilong', cb_enable_mathjax=false;var isLogined=false;</script>
+<script src="/bundles/blog-common.js?v=11dr0XLzw5fQ8P-Fi17Yt8Tr3N0shWFDPkWawLnvEts1" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/yangzhilong/"><img id="blogLogo" src="/Skins/custom/images/logo.gif" alt="返回主页" /></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/yangzhilong/">自行车上的程序员</a></h1>
+<h2>学无止境</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li></li>
+<li><a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/yangzhilong/">首页</a></li>
+<li><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/%E8%87%AA%E8%A1%8C%E8%BD%A6%E4%B8%8A%E7%9A%84%E7%A8%8B%E5%BA%8F%E5%91%98">联系</a></li>
+<li>
+<!----></li>
+<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<span id="stats_post_count">随笔 - 245&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 19</span>
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class = "post">
+		<h1 class = "postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/yangzhilong/p/3725849.html">spring mvc拦截器和&lt;mvc:annotation-driven /&gt;的详解</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><h2><span>MVC的拦截器</span></h2>
+<p><span style="font-size: 14pt; color: #ff0000;">经本人在Spring mvc中对方案1和方案2的测试表明，并没有拦截静态资源，所以可以放心使用方案1和方案2，方案3可以放弃，并且可以放心使用&lt;mvc:annotation-driven /&gt;注解。</span></p>
+<p>&nbsp;</p>
+<h4><span><span>方案一，（近似）总拦截器，拦截所有url</span></span></h4>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:interceptors</span><span style="color: #0000ff;">&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">class</span><span style="color: #0000ff;">="com.app.mvc.MyInteceptor"</span> <span style="color: #0000ff;">/&gt;</span>
+<span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:interceptors</span><span style="color: #0000ff;">&gt;</span></pre>
+</div>
+<p><span>为什么叫&ldquo;近似&rdquo;，前面说了，Spring没有总的拦截器。</span></p>
+<p><span>&lt;mvc:interceptors/&gt;会为每一个HandlerMapping，注入一个拦截器。总有一个HandlerMapping是可以找到处理器的，最多也只找到一个处理器，所以这个拦截器总会被执行的。起到了总拦截器的作用。</span></p>
+<p><span style="text-decoration: line-through;">如果是REST风格的URL，静态资源也会被拦截。（在4.0上测试并未有此问题）</span></p>
+<h4><span>方案二，</span><span>&nbsp;</span><span>（近似）</span><span>&nbsp;</span><span>总拦截器，</span><span>&nbsp;</span><span>拦截匹配的URL。</span></h4>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:interceptors </span><span style="color: #0000ff;">&gt;</span>  
+  <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:interceptor</span><span style="color: #0000ff;">&gt;</span>  
+        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:mapping </span><span style="color: #ff0000;">path</span><span style="color: #0000ff;">="/user/*"</span> <span style="color: #0000ff;">/&gt;</span> <span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> /user/*  </span><span style="color: #008000;">--&gt;</span>  
+        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">class</span><span style="color: #0000ff;">="com.mvc.MyInteceptor"</span><span style="color: #0000ff;">&gt;&lt;/</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;</span>  
+    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:interceptor</span><span style="color: #0000ff;">&gt;</span>  
+<span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:interceptors</span><span style="color: #0000ff;">&gt;</span>  </pre>
+</div>
+<p><span>就是比</span>&nbsp;<span>方案一多了一个URL匹配。</span></p>
+<p><span style="text-decoration: line-through;">如果是REST风格的URL，静态资源也会被拦截。（在4.0上测试并未有此问题）</span></p>
+<h4><span>方案三,HandlerMappint上的拦截器。</span></h4>
+<p>如果是REST风格的URL，静态资源就不会被拦截。因为我们精准的注入了拦截器</p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">class</span><span style="color: #0000ff;">="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"</span><span style="color: #0000ff;">&gt;</span>     
+ <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">property </span><span style="color: #ff0000;">name</span><span style="color: #0000ff;">="interceptors"</span><span style="color: #0000ff;">&gt;</span>     
+     <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">list</span><span style="color: #0000ff;">&gt;</span>     
+         <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">class</span><span style="color: #0000ff;">="com.mvc.MyInteceptor"</span><span style="color: #0000ff;">&gt;&lt;/</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;</span>    
+     <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">list</span><span style="color: #0000ff;">&gt;</span>     
+ <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">property</span><span style="color: #0000ff;">&gt;</span>     
+<span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;</span> </pre>
+</div>
+<p><span>如果使用了&lt;mvc:annotation-driven /&gt;，&nbsp;它会自动注册DefaultAnnotationHandlerMapping 与AnnotationMethodHandlerAdapter 这两个bean,所以就没有机会再给它注入interceptors属性，就无法指定拦截器。</span></p>
+<p><span>当然我们可以通过人工配置上面的两个Bean，不使用</span>&nbsp;<span>&lt;mvc:annotation-driven /&gt;，就可以</span>&nbsp;<span>给interceptors属性</span>&nbsp;<span>注入拦截器了。</span></p>
+<p>&nbsp;</p>
+<h2><span>&lt;mvc:annotation-driven /&gt;到底帮我们做了啥</span></h2>
+<p><span>一句</span>&nbsp;&lt;mvc:annotation-driven /&gt;<span>实际做了以下工作：（不包括添加自己定义的拦截器）</span></p>
+<p><span>我们了解这些之后，对Spring3 MVC的控制力就更强大了，想改哪就改哪里。</span></p>
+<p><span style="color: #ff0000;">spring 3.0.x是下面的配置</span></p>
+<div class="cnblogs_code">
+<pre>    <span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 注解请求映射  </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">class</span><span style="color: #0000ff;">="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"</span><span style="color: #0000ff;">&gt;</span>        
+        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">property </span><span style="color: #ff0000;">name</span><span style="color: #0000ff;">="interceptors"</span><span style="color: #0000ff;">&gt;</span>
+            <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">list</span><span style="color: #0000ff;">&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="logNDCInteceptor"</span><span style="color: #0000ff;">/&gt;</span>   <span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 日志拦截器，这是你自定义的拦截器 </span><span style="color: #008000;">--&gt;</span>
+            <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">list</span><span style="color: #0000ff;">&gt;</span>        
+        <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">property</span><span style="color: #0000ff;">&gt;</span>        
+    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;</span>      
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">class</span><span style="color: #0000ff;">="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"</span><span style="color: #0000ff;">&gt;</span>
+        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">property </span><span style="color: #ff0000;">name</span><span style="color: #0000ff;">="messageConverters"</span><span style="color: #0000ff;">&gt;</span>  
+            <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">list</span><span style="color: #0000ff;">&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="byteArray_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="string_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="resource_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="source_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="xmlAwareForm_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="jaxb2RootElement_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+                <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">ref </span><span style="color: #ff0000;">bean</span><span style="color: #0000ff;">="jackson_hmc"</span> <span style="color: #0000ff;">/&gt;</span>  
+            <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">list</span><span style="color: #0000ff;">&gt;</span>  
+        <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">property</span><span style="color: #0000ff;">&gt;</span>  
+    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;</span>  
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="byteArray_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.ByteArrayHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理.. </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="string_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.StringHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理.. </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="resource_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.ResourceHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理.. </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="source_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.xml.SourceHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理.. </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="xmlAwareForm_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理.. </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="jaxb2RootElement_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理.. </span><span style="color: #008000;">--&gt;</span>
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean </span><span style="color: #ff0000;">id</span><span style="color: #0000ff;">="jackson_hmc"</span><span style="color: #ff0000;"> class</span><span style="color: #0000ff;">="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"</span> <span style="color: #0000ff;">/&gt;</span><span style="color: #008000;">&lt;!--</span><span style="color: #008000;"> 处理json</span><span style="color: #008000;">--&gt;</span></pre>
+</div>
+<p>转载:<a href="http://elf8848.iteye.com/blog/875830">http://elf8848.iteye.com/blog/875830</a></p>
+<p><span style="color: #ff0000;">spring 3.1 later：</span><span><br /></span></p>
+<p><span>Spring 3.0.x中使用了annotation-driven后，缺省使用DefaultAnnotationHandlerMapping 来注册handler method和request的mapping关系。&nbsp;</span><br /><br /><span>AnnotationMethodHandlerAdapter来在实际调用handlermethod前对其参数进行处理。&nbsp;</span><br /><br /><span>并在dispatcherServlet中，当用户未注册自定义的ExceptionResolver时，注册AnnotationMethodHandlerExceptionResolver来对使用@ExceptionHandler标注的异常处理函数进行解析处理(这也导致当用户注册了自定义的exeptionResolver时将可能导致无法处理@ExceptionHandler)。&nbsp;</span><br /><br /><span style="color: #ff0000;">在spring mvc 3.1中，对应变更为&nbsp;</span><br /><span>DefaultAnnotationHandlerMapping -&gt; org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping&nbsp;</span><br /><span>AnnotationMethodHandlerAdapter -&gt; org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter&nbsp;</span><br /><span>AnnotationMethodHandlerExceptionResolver -&gt; ExceptionHandlerExceptionResolver&nbsp;</span><br /><br /><span>以上都在使用了annotation-driven后自动注册。&nbsp;</span><br /><span>&nbsp; 而且对应分别提供了AbstractHandlerMethodMapping , AbstractHandlerMethodAdapter和 AbstractHandlerMethodExceptionResolver以便于让用户更方便的实现自定义的实现类</span></p>
+<p>&nbsp;</p>
+<h2>&lt;mvc:annotation-driven /&gt;的可选配置</h2>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:annotation-driven  </span><span style="color: #ff0000;">message-codes-resolver </span><span style="color: #0000ff;">="bean ref"</span><span style="color: #ff0000;"> validator</span><span style="color: #0000ff;">=""</span><span style="color: #ff0000;"> conversion-service</span><span style="color: #0000ff;">=""</span><span style="color: #0000ff;">&gt;</span>
+   
+     <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:return-value-handlers</span><span style="color: #0000ff;">&gt;</span>
+        <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;&lt;/</span><span style="color: #800000;">bean</span><span style="color: #0000ff;">&gt;</span>
+    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:return-value-handlers</span><span style="color: #0000ff;">&gt;</span>
+    
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:argument-resolvers</span><span style="color: #0000ff;">&gt;</span>
+    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:argument-resolvers</span><span style="color: #0000ff;">&gt;</span>
+    
+    <span style="color: #0000ff;">&lt;</span><span style="color: #800000;">mvc:message-converters</span><span style="color: #0000ff;">&gt;</span>
+    <span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:message-converters</span><span style="color: #0000ff;">&gt;</span><span style="color: #000000;">[/color]
+</span><span style="color: #0000ff;">&lt;/</span><span style="color: #800000;">mvc:annotation-driven</span><span style="color: #0000ff;">&gt;</span></pre>
+</div>
+<p>具体可以参见：<a href="http://starscream.iteye.com/blog/1098880">http://starscream.iteye.com/blog/1098880</a></p>
+<p>&nbsp;</p>
+<h3>Spring拦截器的定义：</h3>
+<p><span>Spring为我们提供了：<br />org.springframework.web.servlet.HandlerInterceptor接口，</span></p>
+<p><span>org.springframework.web.servlet.handler.HandlerInterceptorAdapter适配器，<br />实现这个接口或继承此类，可以非常方便的实现自己的拦截器。<br />&nbsp;<br />有以下三个方法：<br />&nbsp;</span></p>
+<div class="cnblogs_code">
+<pre><span style="color: #008000;">//</span><span style="color: #008000;">Action之前执行:</span>
+ <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">boolean</span><span style="color: #000000;"> preHandle(HttpServletRequest request,
+   HttpServletResponse response, Object handler);
+</span><span style="color: #008000;">//</span><span style="color: #008000;">如果返回false则中断请求
+ 
+</span><span style="color: #008000;">//</span><span style="color: #008000;">生成视图之前执行</span>
+ <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span><span style="color: #000000;"> postHandle(HttpServletRequest request,
+   HttpServletResponse response, Object handler,
+   ModelAndView modelAndView);
+ 
+</span><span style="color: #008000;">//</span><span style="color: #008000;">最后执行，可用于释放资源</span>
+ <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">void</span><span style="color: #000000;"> afterCompletion(HttpServletRequest request,
+   HttpServletResponse response, Object handler, Exception ex)</span></pre>
+</div>
+<p>&nbsp;</p>
+<p><span><br /><br /></span></p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<div class = "postDesc">posted @ <span id="post-date">2014-05-13 16:33</span> <a href='http://www.cnblogs.com/yangzhilong/'>自行车上的程序员</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="https://i.cnblogs.com/EditPosts.aspx?postid=3725849" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(3725849);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=140917,cb_entryId=3725849,cb_blogApp=currentBlogApp,cb_blogUserGuid='d437592f-1e69-e211-aa8f-842b2b196315',cb_entryCreatedDate='2014/5/13 16:33:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id='comment_form' class='commentform'>
+<a name='commentform'></a>
+<div id='divCommentShow'></div>
+<div id='comment_nav'><span id='span_refresh_tips'></span><a href='javascript:void(0);' onclick='return RefreshCommentList();' id='lnk_RefreshComments' runat='server' clientidmode='Static'>刷新评论</a><a href='#' onclick='return RefreshPage();'>刷新页面</a><a href='#top'>返回顶部</a></div>
+<div id='comment_form_container'></div>
+<div class='ad_text_commentbox' id='ad_text_under_commentbox'></div>
+<div id='ad_t2'></div>
+<div id='opt_under_post'></div>
+<div id='ad_c1' class='c_ad_block'></div>
+<div id='under_post_news'></div>
+<div id='ad_c2' class='c_ad_block'></div>
+<div id='under_post_kb'></div>
+<div id='HistoryToday' class='c_ad_block'></div>
+<script type='text/javascript'>
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright &copy;2017 自行车上的程序员
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>SpringMVC源码总结（一）HandlerMapping和HandlerAdapter入门 - 乒乓狂魔(源码研究群QQ 345731741)  已搬往开源中国 - ITeye技术网站</title>
+    <meta name="description" content="刚接触SpringMVC,对它的xml文件配置一直比较模模糊糊，最近花了一点时间稍微看了下源代码，再加上调试，开始逐渐理解它，网上的类似的内容有很多，写本文主要是自己加深一下理解。本文适合用过SpringMVC的开发者，言归正传，首先搭建一个最简单的工程体验一下。 该工程是基于maven的，pom配置不再说明，所使用的spring版本4.0.5。 首先是web.xml文件配置，最简单的配置    & ..." />
+    <meta name="keywords" content="SpringMVC, HandlerMapping, HandlerAdapter, RequestMappingHandlerMapping, RequestMappingHandlerAdapter SpringMVC源码总结（一）HandlerMapping和HandlerAdapter入门" />
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+    <link rel="search" type="application/opensearchdescription+xml" href="/open_search.xml" title="ITeye" />
+    <link href="/rss" rel="alternate" title="乒乓狂魔(源码研究群QQ 345731741)  已搬往开源中国" type="application/rss+xml" />
+    <link href="http://www.iteye.com/stylesheets/blog.css?1480562553" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://www.iteye.com/stylesheets/themes/blog/green.css?1448702469" media="screen" rel="stylesheet" type="text/css" />
+    <script src="http://www.iteye.com/javascripts/application.js?1448702469" type="text/javascript"></script>    
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="http://www.iteye.com/javascripts/syntaxhighlighter/SyntaxHighlighter.css?1448702469" media="screen" rel="stylesheet" type="text/css" />
+  <script src="http://www.iteye.com/javascripts/syntaxhighlighter/shCoreCommon.js?1448702469" type="text/javascript"></script>
+<script src="http://www.iteye.com/javascripts/hotkey.js?1448702469" type="text/javascript"></script>
+  <script src="http://www.iteye.com/javascripts/code_favorites.js?1448702469" type="text/javascript"></script>
+<script src="http://www.iteye.com/javascripts/weiboshare.js?1448702469" type="text/javascript"></script>
+  <script>
+		var _hmt = _hmt || [];
+		(function() {
+		 var hm = document.createElement("script");
+		 hm.src = "//hm.baidu.com/hm.js?e19a8b00cf63f716d774540875007664";
+		 var s = document.getElementsByTagName("script")[0]; 
+		 s.parentNode.insertBefore(hm, s);
+		})();
+	</script>
+    
+  </head>
+  <body>
+    <div id="header">
+	      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">知识库</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+	      <div id="user_nav">
+      <a href="/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="/login">登录</a>
+    <a href="/signup" class="nobg">注册</a>
+  </div>
+
+	    
+    </div>
+
+    <div id="page">
+        <div id="branding" class="clearfix" style="overflow: hidden;background: none;padding:0 0 2px;">
+        	<ins data-revive-zoneid="184" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+        </div>
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="/">乒乓狂魔(源码研究群QQ 345731741)  已搬往开源中国</a></h1>
+        </div>
+        <div id='fd'></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class='blog_navbar_for'><a href="http://lgbolgger.iteye.com"><strong>博客</strong></a></li>
+            <li ><a href="/weibo">微博</a></li>
+            <li ><a href="/album">相册</a></li>
+            <li ><a href="/link">收藏</a></li>
+            <li ><a href="/blog/guest_book">留言</a></li>
+            <li ><a href="/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text" value="" />
+              <input class="submit_search" type="submit" value="" />
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="h-entry" style='display:none'>
+  <a href="http://lgbolgger.iteye.com" class="p-author" target="_blank">乒乓狂魔</a>
+</div>
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="/blog/2105101">SpringMVC源码总结（一）HandlerMapping和HandlerAdapter入门</a>
+      <em class="actions">      </em>
+    </h3>
+    <ul class='blog_categories'><strong>博客分类：</strong> <li><a href="/category/321050">SpringMVC源码分析</a></li> </ul>
+        <div class='news_tag'><a href="http://www.iteye.com/blogs/tag/SpringMVC">SpringMVC</a><a href="http://www.iteye.com/blogs/tag/HandlerMapping">HandlerMapping</a><a href="http://www.iteye.com/blogs/tag/HandlerAdapter">HandlerAdapter</a><a href="http://www.iteye.com/blogs/tag/RequestMappingHandlerMapping">RequestMappingHandlerMapping</a><a href="http://www.iteye.com/blogs/tag/RequestMappingHandlerAdapter">RequestMappingHandlerAdapter</a>&nbsp;</div>
+    	  
+    	
+    	
+  		
+      </div>
+
+  <div id="blog_content" class="blog_content">
+    <span style="font-size: medium;">刚接触SpringMVC,对它的xml文件配置一直比较模模糊糊，最近花了一点时间稍微看了下源代码，再加上调试，开始逐渐理解它，网上的类似的内容有很多，写本文主要是自己加深一下理解。本文适合用过SpringMVC的开发者，言归正传，首先搭建一个最简单的工程体验一下。<br /><br />该工程是基于maven的，pom配置不再说明，所使用的spring版本4.0.5。<br />首先是web.xml文件配置，最简单的配置<br /></span><br /><pre name="code" class="java">
+&lt;!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" &gt;
+
+&lt;web-app&gt;
+  &lt;display-name&gt;Archetype Created Web Application&lt;/display-name&gt;
+  &lt;servlet&gt;
+		&lt;servlet-name&gt;mvc&lt;/servlet-name&gt;
+		&lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+		&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+	&lt;/servlet&gt;
+
+	&lt;servlet-mapping&gt;
+		&lt;servlet-name&gt;mvc&lt;/servlet-name&gt;
+		&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+	&lt;/servlet-mapping&gt;
+&lt;/web-app&gt;
+</pre><br /><span style="font-size: medium;">然后是mvc-servlet.xml文件的配置，上面配置DispatcherServlet会默认加载[servlet-name]-servlet.xml文件。对于我的配置，会去加载mvc-servlet.xml文件。<br />mvc-servlet.xml文件的内容：</span><br /><pre name="code" class="java">
+&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util-2.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-3.2.xsd"&gt;
+
+	&lt;bean name="/index" class="com.lg.mvc.HomeAction"&gt;&lt;/bean&gt;
+	&lt;bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer"&gt;
+		&lt;property name="templateLoaderPath" value="/WEB-INF/views" /&gt;
+		&lt;property name="defaultEncoding" value="utf-8" /&gt;
+		&lt;property name="freemarkerSettings"&gt;
+			&lt;props&gt;
+				&lt;prop key="locale"&gt;zh_CN&lt;/prop&gt;
+			&lt;/props&gt;
+		&lt;/property&gt;
+	&lt;/bean&gt;
+	&lt;bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver"&gt;
+		&lt;property name="suffix" value=".html" /&gt;
+		&lt;property name="contentType" value="text/html;charset=utf-8" /&gt;
+		&lt;property name="requestContextAttribute" value="request" /&gt;
+		&lt;property name="exposeRequestAttributes" value="true" /&gt;
+		&lt;property name="exposeSessionAttributes" value="true" /&gt;
+	&lt;/bean&gt;
+&lt;/beans&gt;
+</pre><br /><span style="font-size: medium;">在该配置中定义了一个HomeAction的Bean。内容为：</span><br /><pre name="code" class="java">
+package com.lg.mvc;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+public class HomeAction implements Controller{
+
+	@Override
+	public ModelAndView handleRequest(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		return new ModelAndView("hello");
+	}
+}
+
+</pre><br /><span style="font-size: medium;">这是最原始的mvc做法，要继承Controller接口，先从原始的说起，最后再过渡到@Controller和@RequestMapping注解式的配置。它在mvc-serlet.xml文件中的配置有一个关键的属性name="/index"。<br />WEB-INF/view目录下有一个简单的hello.html，内容为：</span><br /><pre name="code" class="java">
+&lt;html&gt;
+	&lt;head&gt;
+	
+	&lt;/head&gt;
+	&lt;body&gt;
+		hello lg !
+	&lt;/body&gt;
+&lt;/html&gt;
+</pre><br /><span style="font-size: medium;">至此该工程就写完了，部署到tomcat中，项目路径为/,运行一下。<br />访问 http://localhost:8080/index<br /><img src="http://dl2.iteye.com/upload/attachment/0100/2677/c502670f-46e0-338e-b2d7-d5a12b9a487a.png" /><br />至此整个工程就算搭建成功了。<br /><br />下面就要说说原理了。<br />用过python Django框架的都知道Django对于访问方式的配置就是，一个url路径和一个函数配对，你访问这个url，就会直接调用这个函数，简单明了。对于java的面向对象来说，就要分两步走。第一步首先要找到是哪个对象，即handler，本工程的handler则是HomeAction对象。第二步要找到访问的函数，即HomeAction的handleRequest方法。所以就出现了两个源码接口 HandlerMapping和HandlerAdapter，前者负责第一步，后者负责第二步。借用网上的SpringMVC架构图。<br /><img src="http://dl2.iteye.com/upload/attachment/0100/2683/a14e5d39-5fcd-35a2-9187-de846501b56d.png" /><br />HandlerMapping接口的实现（只举了我认识的几个） ：<br /><ul><br />BeanNameUrlHandlerMapping ：通过对比url和bean的name找到对应的对象<br />SimpleUrlHandlerMapping ：也是直接配置url和对应bean,比BeanNameUrlHandlerMapping功能更多<br />DefaultAnnotationHandlerMapping : 主要是针对注解配置@RequestMapping的，已过时<br />RequestMappingHandlerMapping ：取代了上面一个<br /></ul><br />HandlerAdapter 接口实现：<br /><ul><br />HttpRequestHandlerAdapter ： 要求handler实现HttpRequestHandler接口，该接口的方法为&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; void handleRequest(HttpServletRequest request, HttpServletResponse response)也就是&nbsp; handler必须有一个handleRequest方法<br /><br />SimpleControllerHandlerAdapter：要求handler实现Controller接口，该接口的方法为ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)，也就是本工程采用的<br /><br />AnnotationMethodHandlerAdapter ：和上面的DefaultAnnotationHandlerMapping配对使用的，也已过时<br /><br />RequestMappingHandlerAdapter : 和上面的RequestMappingHandlerMapping配对使用，针对@RequestMapping<br /></ul><br />先简单的说下这个工程的流程，访问http://localhost:8080/index首先由DispatcherServlet进行转发，通过BeanNameUrlHandlerMapping(含有 /index-&gt;HomeAction的配置)，找到了HomeAction,然后再拿HomeAction和每个adapter进行适配，由于HomeAction实现了Controller接口，所以最终会有SimpleControllerHandlerAdapter来完成对HomeAction的handleRequest方法的调度。然后就顺利的执行了我们想要的方法，后面的内容不在本节中说明。<br /><br />了解了大概流程，然后就需要看源代码了。<br />首先就是SpringMVC的入口类，DispatcherServlet，它实现了Servlet接口，不再详细说DispatcherServlet的细节，不然又是一大堆的内容。每次请求都会调用它的doService-&gt;doDispatch，我们关注的重点就在doDispatch方法中。</span><br /><pre name="code" class="java">
+protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HttpServletRequest processedRequest = request;
+		HandlerExecutionChain mappedHandler = null;
+		boolean multipartRequestParsed = false;
+
+		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+
+		try {
+			ModelAndView mv = null;
+			Exception dispatchException = null;
+
+			try {
+				processedRequest = checkMultipart(request);
+				multipartRequestParsed = (processedRequest != request);
+                      //这个是重点，第一步由HandlerMapping找到对应的handler
+				// Determine handler for the current request.
+				mappedHandler = getHandler(processedRequest);
+				if (mappedHandler == null || mappedHandler.getHandler() == null) {
+					noHandlerFound(processedRequest, response);
+					return;
+				}
+
+				// Determine handler adapter for the current request.
+                       //这是第二步，找到合适的HandlerAdapter，然后由它来调度执行handler的方法
+				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
+
+				// Process last-modified header, if supported by the handler.
+				String method = request.getMethod();
+				boolean isGet = "GET".equals(method);
+				if (isGet || "HEAD".equals(method)) {
+					long lastModified = ha.getLastModified(request, mappedHandler.getHandler());
+					if (logger.isDebugEnabled()) {
+						logger.debug("Last-Modified value for [" + getRequestUri(request) + "] is: " + lastModified);
+					}
+					if (new ServletWebRequest(request, response).checkNotModified(lastModified) &amp;&amp; isGet) {
+						return;
+					}
+				}
+
+				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
+					return;
+				}
+
+				try {
+					// Actually invoke the handler.
+					mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
+				}
+				finally {
+					if (asyncManager.isConcurrentHandlingStarted()) {
+						return;
+					}
+				}
+
+				applyDefaultViewName(request, mv);
+				mappedHandler.applyPostHandle(processedRequest, response, mv);
+			}
+			catch (Exception ex) {
+				dispatchException = ex;
+			}
+			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
+		}
+		catch (Exception ex) {
+			triggerAfterCompletion(processedRequest, response, mappedHandler, ex);
+		}
+		catch (Error err) {
+			triggerAfterCompletionWithError(processedRequest, response, mappedHandler, err);
+		}
+		finally {
+			if (asyncManager.isConcurrentHandlingStarted()) {
+				// Instead of postHandle and afterCompletion
+				mappedHandler.applyAfterConcurrentHandlingStarted(processedRequest, response);
+				return;
+			}
+			// Clean up any resources used by a multipart request.
+			if (multipartRequestParsed) {
+				cleanupMultipart(processedRequest);
+			}
+		}
+	}
+</pre><br /><span style="font-size: medium;">第一步详细查看：</span><br /><pre name="code" class="java">
+protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		for (HandlerMapping hm : this.handlerMappings) {
+			if (logger.isTraceEnabled()) {
+				logger.trace(
+						"Testing handler map [" + hm + "] in DispatcherServlet with name '" + getServletName() + "'");
+			}
+			HandlerExecutionChain handler = hm.getHandler(request);
+			if (handler != null) {
+				return handler;
+			}
+		}
+		return null;
+	}
+</pre><br /><span style="font-size: medium;">可以看到就是通过遍历所有已注册的HandlerMapping来找到对应的handler,然后构建出一个HandlerExecutionChain，它包含了handler和HandlerMapping本身的一些拦截器，如下</span><br /><pre name="code" class="java">
+public class HandlerExecutionChain {
+
+	private final Object handler;
+
+	private HandlerInterceptor[] interceptors;
+
+	private List&lt;HandlerInterceptor&gt; interceptorList;
+        
+        //其他代码省略
+}
+</pre><br /><span style="font-size: medium;">其中HandlerMapping的getHandler实现：</span><br /><pre name="code" class="java">
+public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		Object handler = getHandlerInternal(request);
+		if (handler == null) {
+			handler = getDefaultHandler();
+		}
+		if (handler == null) {
+			return null;
+		}
+		// Bean name or resolved handler?
+		if (handler instanceof String) {
+			String handlerName = (String) handler;
+			handler = getApplicationContext().getBean(handlerName);
+		}
+		return getHandlerExecutionChain(handler, request);
+	}
+</pre><br /><span style="font-size: medium;">这里的getHandlerInternal(request)是个抽象方法，由具体的HandlerMapping来实现，获取到的handler如果为空,则获取默认配置的handler，如果handler为String类型，则表示这个则会去Spring容器里面去找这样名字的bean。<br />再看下BeanNameUrlHandlerMapping的getHandlerInternal（request）的具体实现（通过一系列的接口设计，之后再好好看看这个设计，到BeanNameUrlHandlerMapping这只用实现该方法中的一部分），如下</span><br /><pre name="code" class="java">
+public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMapping {
+
+	/**
+	 * Checks name and aliases of the given bean for URLs, starting with "/".
+	 */
+	@Override
+	protected String[] determineUrlsForHandler(String beanName) {
+		List&lt;String&gt; urls = new ArrayList&lt;String&gt;();
+		if (beanName.startsWith("/")) {
+			urls.add(beanName);
+		}
+		String[] aliases = getApplicationContext().getAliases(beanName);
+		for (String alias : aliases) {
+			if (alias.startsWith("/")) {
+				urls.add(alias);
+			}
+		}
+		return StringUtils.toStringArray(urls);
+	}
+
+}
+</pre><br /><span style="font-size: medium;">这里面注释说，bean的name必须以/开头，它才处理，将信息存储在Map&lt;String, Object&gt; handlerMap中，对于本工程来说就是{'/index':HomeAction对象}。<br />至此这里完成了第一步，下面开始第二步，即方法HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());的具体实现：</span><br /><pre name="code" class="java">
+protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+		for (HandlerAdapter ha : this.handlerAdapters) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Testing handler adapter [" + ha + "]");
+			}
+			if (ha.supports(handler)) {
+				return ha;
+			}
+		}
+		throw new ServletException("No adapter for handler [" + handler +
+				"]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
+	}
+</pre><br /><span style="font-size: medium;">遍历所有的HandlerAdapter,判断他们是否支持这个handler。<br />我们来看下HttpRequestHandlerAdapter的supports(handler)方法：</span><br /><pre name="code" class="java">
+public class HttpRequestHandlerAdapter implements HandlerAdapter {
+
+	@Override
+	public boolean supports(Object handler) {
+          //就是判断handler是否实现了HttpRequestHandler接口
+		return (handler instanceof HttpRequestHandler);
+	}
+
+	@Override
+	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
+           //若handler实现了HttpRequestHandler接口，则调用该接口的方法，执行我们在该方法中写的业务逻辑
+		((HttpRequestHandler) handler).handleRequest(request, response);
+		return null;
+	}
+
+	@Override
+	public long getLastModified(HttpServletRequest request, Object handler) {
+		if (handler instanceof LastModified) {
+			return ((LastModified) handler).getLastModified(request);
+		}
+		return -1L;
+	}
+
+}
+</pre><br /><span style="font-size: medium;">同理SimpleControllerHandlerAdapter也是这样类似的逻辑</span><br /><pre name="code" class="java">
+public class SimpleControllerHandlerAdapter implements HandlerAdapter {
+
+	@Override
+	public boolean supports(Object handler) {
+		return (handler instanceof Controller);
+	}
+
+	@Override
+	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws Exception {
+
+		return ((Controller) handler).handleRequest(request, response);
+	}
+
+	@Override
+	public long getLastModified(HttpServletRequest request, Object handler) {
+		if (handler instanceof LastModified) {
+			return ((LastModified) handler).getLastModified(request);
+		}
+		return -1L;
+	}
+
+}
+</pre><br /><span style="font-size: medium;">剩余两个AnnotationMethodHandlerAdapter和RequestMappingHandlerAdapter就比较复杂，我也没看。<br />按照本工程的配置，则SimpleControllerHandlerAdapter是支持HomeAction的，然后就会执行SimpleControllerHandlerAdapter的handle(processedRequest, response, mappedHandler.getHandler())方法。本质上就会调用HomeAction实现Controller接口的方法。至此就分析完了。<br />了解过程了之后，然后就是最重要的也是经常配置出问题的地方。DispatcherServlet的handlerMappings和handlerAdapters的来源问题。<br /><br />DispatcherServlet初始化的时候，会调用一个方法如下：<br /></span><br /><pre name="code" class="java">
+protected void initStrategies(ApplicationContext context) {
+		initMultipartResolver(context);
+		initLocaleResolver(context);
+		initThemeResolver(context);
+//初始化一些HandlerMapping
+		initHandlerMappings(context);
+//初始化一些HandlerAdapter
+		initHandlerAdapters(context);
+		initHandlerExceptionResolvers(context);
+		initRequestToViewNameTranslator(context);
+		initViewResolvers(context);
+		initFlashMapManager(context);
+	}
+</pre><br /><span style="font-size: medium;">这里可以看到，它会初始化一些HandlerMapping和HandlerAdapter，这两个方法非常重要，理解了这两个方法你就会知道，配置不对问题出在哪里，下面具体看下这两个方法：</span><br /><pre name="code" class="java">
+private void initHandlerMappings(ApplicationContext context) {
+		this.handlerMappings = null;
+
+		if (this.detectAllHandlerMappings) {
+			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+			Map&lt;String, HandlerMapping&gt; matchingBeans =
+					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
+			if (!matchingBeans.isEmpty()) {
+				this.handlerMappings = new ArrayList&lt;HandlerMapping&gt;(matchingBeans.values());
+				// We keep HandlerMappings in sorted order.
+				OrderComparator.sort(this.handlerMappings);
+			}
+		}
+		else {
+			try {
+				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
+				this.handlerMappings = Collections.singletonList(hm);
+			}
+			catch (NoSuchBeanDefinitionException ex) {
+				// Ignore, we'll add a default HandlerMapping later.
+			}
+		}
+
+		// Ensure we have at least one HandlerMapping, by registering
+		// a default HandlerMapping if no other mappings are found.
+		if (this.handlerMappings == null) {
+			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);
+			if (logger.isDebugEnabled()) {
+				logger.debug("No HandlerMappings found in servlet '" + getServletName() + "': using default");
+			}
+		}
+	}
+
+</pre><br /><span style="font-size: medium;">detectAllHandlerMappings是DispatcherServlet的一个属性，你是可以在web.xml中配置的，默认是true，如果为true,则会去从本工程mvc-servlet.xml文件中去探测所有实现了HandlerMapping的bean，如果有，则加入DispatcherServlet的handlerMappings中。如果detectAllHandlerMappings为false,则直接去容器中找id="handlerMapping"且实现了HandlerMapping的bean.如果以上都没找到，则会去加载默认的HandlerMapping。</span><br /><pre name="code" class="java">
+/** Detect all HandlerMappings or just expect "handlerMapping" bean? */
+	private boolean detectAllHandlerMappings = true;
+</pre><br /><span style="font-size: medium;">本工程由于没有配置HandlerMapping,所以它会去加载默认的，下面看看默认的配置是什么</span><br /><pre name="code" class="java">
+protected &lt;T&gt; List&lt;T&gt; getDefaultStrategies(ApplicationContext context, Class&lt;T&gt; strategyInterface) {
+		String key = strategyInterface.getName();
+//defaultStrategies存储了默认的配置
+		String value = defaultStrategies.getProperty(key);
+		if (value != null) {
+			String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
+			List&lt;T&gt; strategies = new ArrayList&lt;T&gt;(classNames.length);
+			for (String className : classNames) {
+				try {
+					Class&lt;?&gt; clazz = ClassUtils.forName(className, DispatcherServlet.class.getClassLoader());
+					Object strategy = createDefaultStrategy(context, clazz);
+					strategies.add((T) strategy);
+				}
+				catch (ClassNotFoundException ex) {
+					throw new BeanInitializationException(
+							"Could not find DispatcherServlet's default strategy class [" + className +
+									"] for interface [" + key + "]", ex);
+				}
+				catch (LinkageError err) {
+					throw new BeanInitializationException(
+							"Error loading DispatcherServlet's default strategy class [" + className +
+									"] for interface [" + key + "]: problem with class file or dependent class", err);
+				}
+			}
+			return strategies;
+		}
+		else {
+			return new LinkedList&lt;T&gt;();
+		}
+	}
+
+</pre><br /><span style="font-size: medium;">继续看看defaultStrategies是如何初始化的：</span><br /><pre name="code" class="java">
+private static final Properties defaultStrategies;
+
+	static {
+		// Load default strategy implementations from properties file.
+		// This is currently strictly internal and not meant to be customized
+		// by application developers.
+		try {
+//这里的DEFAULT_STRATEGIES_PATH就是DispatcherServlet.properties
+			ClassPathResource resource = new ClassPathResource(DEFAULT_STRATEGIES_PATH, DispatcherServlet.class);
+			defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);
+		}
+		catch (IOException ex) {
+			throw new IllegalStateException("Could not load 'DispatcherServlet.properties': " + ex.getMessage());
+		}
+	}
+</pre><br /><span style="font-size: medium;">这里使用静态代码块来加载配置文件DispatcherServlet.properties，它所在位置就是和DispatcherServlet同一目录下面的，如下图所示：<br /></span><br /><img src="http://dl2.iteye.com/upload/attachment/0100/2735/61234404-0fb0-370b-a908-d62728f53929.png" /><br /><span style="font-size: medium;">该默认的配置文件的内容如下</span>：<br /><pre name="code" class="java">
+# Default implementation classes for DispatcherServlet's strategy interfaces.
+# Used as fallback when no matching beans are found in the DispatcherServlet context.
+# Not meant to be customized by application developers.
+
+org.springframework.web.servlet.LocaleResolver=org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver
+
+org.springframework.web.servlet.ThemeResolver=org.springframework.web.servlet.theme.FixedThemeResolver
+
+#这里就是默认的HandlerMapping的配置
+org.springframework.web.servlet.HandlerMapping=org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping,\
+	org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping
+#这里就是默认的HandlerAdapter的配置
+org.springframework.web.servlet.HandlerAdapter=org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter,\
+	org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter,\
+	org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter
+
+org.springframework.web.servlet.HandlerExceptionResolver=org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerExceptionResolver,\
+	org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver,\
+	org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver
+
+org.springframework.web.servlet.RequestToViewNameTranslator=org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator
+
+org.springframework.web.servlet.ViewResolver=org.springframework.web.servlet.view.InternalResourceViewResolver
+
+org.springframework.web.servlet.FlashMapManager=org.springframework.web.servlet.support.SessionFlashMapManager
+</pre><br /><span style="font-size: medium;">也就是说，当你什么都没有配置时，默认会加载以上的配置。正是由于有了上述默认配置的BeanNameUrlHandlerMapping（它要求name必须是以/开头的），它才会存储我们在mvc-servlet.xml中配置的&lt;bean name="/index" class="com.lg.mvc.HomeAction"&gt;&lt;/bean&gt;,同样正是由于有了SimpleControllerHandlerAdapter（由于handler实现了Controller接口，所以它的support方法支持我们的handler），才会调度执行HomeAction的handleRequest方法。</span>
+  </div>
+
+  
+  <div class="attachments">
+    
+      
+        <ul>
+          <li><a href="http://dl.iteye.com/topics/download/d0ce4e36-9220-36d8-900b-359e5bd847a9">最简单的SpringMVC搭建.zip</a> (6.2 KB)</li>
+          
+          <li>下载次数: 28</li>
+        </ul>
+      
+    
+    
+  </div>
+
+
+  
+  <ins data-revive-zoneid="201" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+  
+
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type='sina' href="javascript:;" title="分享到新浪微博"><img src="/images/sina.jpg"></a>
+      <a data-type='qq' href="javascript:;" title="分享到腾讯微博"><img src="/images/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="/blog/2105108" class="next" title="SpringMVC源码总结（二）mvc:annotation-driven以及@Controller和@RequestMapping的那些事">SpringMVC源码总结（二）mvc:annotation-d ...</a>
+      
+      
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2014-08-16 22:42</li>
+      <li>浏览 4801</li>
+      <li><a href="#comments">评论(1)</a></li>
+      
+      
+      <li>分类:<a href="http://www.iteye.com/blogs/category/language">编程语言</a></li>      
+      <li class='last'><a href="http://www.iteye.com/wiki/blog/2105101" target="_blank" class="more">相关推荐</a></li>
+    </ul>    
+  </div>
+  
+		    
+		
+<div class="boutique-curr-box blog_comment">
+	  <div class="boutique-curr clearfix">
+	    <h5 class="h3titles">参考知识库</h5>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/ai"><img src="http://img.knowledge.csdn.net/upload/base/1479972981201_201.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/ai" classs="title">人工智能知识库</a>
+              <span>
+                 <em>11057</em>&nbsp;&nbsp;关注 <i>|</i> <em>521</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/python"><img src="http://img.knowledge.csdn.net/upload/base/1452500783406_406.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/python" classs="title">Python知识库</a>
+              <span>
+                 <em>20626</em>&nbsp;&nbsp;关注 <i>|</i> <em>1340</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/javase"><img src="http://img.knowledge.csdn.net/upload/base/1453169124297_297.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/javase" classs="title">Java SE知识库</a>
+              <span>
+                 <em>23794</em>&nbsp;&nbsp;关注 <i>|</i> <em>476</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	    <dl class="dlnewlist">
+	    
+          <dd><a target="_blank" href="http://lib.csdn.net/base/wechat"><img src="http://img.knowledge.csdn.net/upload/base/1452500582376_376.jpg" width="58" height="58" alt=""></a></dd>
+          <dt>
+              <a target="_blank" href="http://lib.csdn.net/base/wechat" classs="title">微信开发知识库</a>
+              <span>
+                 <em>19193</em>&nbsp;&nbsp;关注 <i>|</i> <em>780</em>&nbsp;&nbsp;收录                  
+              </span>
+          </dt>
+      
+	    </dl>
+	    
+	  </div>
+</div>
+ 		
+      
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    <div id="bc2396581">
+  <div class="comment_title">
+    1 楼
+    <a href='http://whlt20090509.iteye.com' target='_blank' title='whlt20090509'>whlt20090509</a>
+    2017-02-13&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content">"WEB-INF/view目录下有一个简单的hello.html，内容为："<br /><br />应该是WEB-INF/views目录下</div>
+</div>
+
+
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="/login" style="background-color:white;"> <img src="/images/login_icon.png" style="vertical-align:middle; margin-right: 10px;" /></a><a href="/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 2105101;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'SpringMVC源码总结（一）HandlerMapping和HandlerAdapter入门');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'SpringMVC源码总结（一）HandlerMapping和HandlerAdapter入门');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href='http://lgbolgger.iteye.com'><img alt="乒乓狂魔的博客" class="logo" src="http://www.iteye.com/upload/logo/user/1002558/28b3e70a-4acb-30bd-aa3e-7c9e5690f28c.jpg?1408108648" title="乒乓狂魔的博客: 乒乓狂魔(源码研究群QQ 345731741)  已搬往开源中国" width="" /></a></div>
+  <div id="blog_owner_name">乒乓狂魔</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 71944 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="http://www.iteye.com/images/icon_minigender_1.gif?1448702469" title="男" /></li>
+              <li>来自: 上海</li>
+              <li><img src='/images/status/offline.gif'/></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style='font-weight:normal;font-size:12px;padding-left:30px;'><a href="/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href='http://starriver.iteye.com' target='_blank'><img alt="starriver的博客" class="logo" src="http://www.iteye.com/images/user-logo-thumb.gif?1448702469" title="starriver的博客: " width="48px" /></a></div>
+                <div class="left"><a href='http://starriver.iteye.com' target='_blank' title='starriver'>starriver</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href='http://weiqingfei.iteye.com' target='_blank'><img alt="weiqingfei的博客" class="logo" src="http://www.iteye.com/upload/logo/user/185600/75667ae9-0ab7-3958-8edd-fe8457a109c5-thumb.png?1261809347" title="weiqingfei的博客: weiqingfei" width="48px" /></a></div>
+                <div class="left"><a href='http://weiqingfei.iteye.com' target='_blank' title='weiqingfei'>weiqingfei</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href='http://liu-xiaosong.iteye.com' target='_blank'><img alt="liu_xiaosong的博客" class="logo" src="http://www.iteye.com/upload/logo/user/1229933/bd0a6fc3-2d98-308d-bc72-5ac6b2404b58-thumb.png?1486715906" title="liu_xiaosong的博客: " width="48px" /></a></div>
+                <div class="left"><a href='http://liu-xiaosong.iteye.com' target='_blank' title='liu_xiaosong'>liu_xiaosong</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href='http://feilongcug.iteye.com' target='_blank'><img alt="feilongcug的博客" class="logo" src="http://www.iteye.com/images/user-logo-thumb.gif?1448702469" title="feilongcug的博客: " width="48px" /></a></div>
+                <div class="left"><a href='http://feilongcug.iteye.com' target='_blank' title='feilongcug'>feilongcug</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="/">全部博客 (46)</a></li>
+                
+                  <li><a href="/category/321050">SpringMVC源码分析 (12)</a></li>
+                
+                  <li><a href="/category/322988">Spring AOP源码分析 (8)</a></li>
+                
+                  <li><a href="/category/332420">Spring事务源码分析 (1)</a></li>
+                
+                  <li><a href="/category/329230">shiro源码分析 (6)</a></li>
+                
+                  <li><a href="/category/324365">hibernate (5)</a></li>
+                
+                  <li><a href="/category/329513">log (0)</a></li>
+                
+                  <li><a href="/category/322658">设计模式 (9)</a></li>
+                
+                  <li><a href="/category/321643">乱码 (3)</a></li>
+                
+                  <li><a href="/category/324276">ant (0)</a></li>
+                
+                  <li><a href="/category/322865">java基础知识 (2)</a></li>
+                
+                  <li><a href="/category/324277">maven (0)</a></li>
+                
+                  <li><a href="/category/324999">git (0)</a></li>
+                
+                  <li><a href="/category/325932">angularjs (0)</a></li>
+                
+                  <li><a href="/category/327552">解决问题 (0)</a></li>
+                
+                  <li><a href="/category/328243">多线程 (0)</a></li>
+                
+                  <li><a href="/category/331277">加密与解密 (0)</a></li>
+                
+              </ul>
+            </div>
+            <div id='month_blogs'>
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="/blog/post">我的论坛</a> (0)
+                </li>
+                <li><a href="/blog/answered_problems">我的问答</a> (0)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="/blog/monthblog/2015-08">2015-08</a> (1)</li>
+                
+                  <li><a href="/blog/monthblog/2015-02">2015-02</a> (1)</li>
+                
+                  <li><a href="/blog/monthblog/2015-01">2015-01</a> (2)</li>
+                
+                <li><a href="/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+                <li>
+                  <a href='http://whlt20090509.iteye.com' target='_blank' title='whlt20090509'>whlt20090509</a>： 
+                  &quot;WEB-INF/view目录下有一个简单的hell ...<br />
+                  <a href="/blog/2105101#bc2396581">SpringMVC源码总结（一）HandlerMapping和HandlerAdapter入门</a>
+                </li>
+                
+                <li>
+                  <a href='http://hai0378.iteye.com' target='_blank' title='hai0378'>hai0378</a>： 
+                  兄台 算我一个，最近在研究dubbo motan  及 zk  ...<br />
+                  <a href="/blog/2233159#bc2392953">ZooKeeper源码研究寻求小伙伴</a>
+                </li>
+                
+                <li>
+                  <a href='http://zpkbtzmbw.iteye.com' target='_blank' title='zpkbtzmbw'>zpkbtzmbw</a>： 
+                  看懂了，原理<br />
+                  <a href="/blog/2106667#bc2385486">SpringMVC源码总结（五）Tomcat的URIEncoding、useBodyEncodingForURI和CharacterEncodingFilter</a>
+                </li>
+                
+                <li>
+                  <a href='http://zcalyz.iteye.com' target='_blank' title='zcalyz'>zcalyz</a>： 
+                   ...<br />
+                  <a href="/blog/2116164#bc2372236">Spring AOP源码分析（四）Spring AOP的JDK动态代理</a>
+                </li>
+                
+                <li>
+                  <a href='http://azhao2.iteye.com' target='_blank' title='azhao2'>azhao2</a>： 
+                   ...<br />
+                  <a href="/blog/2108885#bc2372222">SpringMVC源码总结（七）mvc:annotation-driven中的HttpMessageConverter</a>
+                </li>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+        <div style="margin-top: 10px;float: left;clear: left;">
+					<ins data-revive-zoneid="185" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+				</div>
+      </div>    
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr/>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br />
+          &copy; 2003-2017 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+        <ins data-revive-zoneid="186" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script>
+
+<script src="http://csdnimg.cn/pubfooter/js/tracking.js?version=20130923164150" type="text/javascript"></script>
+
+    
+    
+    <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>
+<script src="http://c.csdnimg.cn/public/common/libs/jquery/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">var $csdn_iteye_jq = jQuery.noConflict();// 解决jq与prototype.js命名空间冲突的问题</script>
+<script src="http://ads.csdn.net/js/tracking.js" type="text/javascript"></script>
+    
+	    
+	    <script src="http://www.iteye.com/javascripts/web-storage-cache.min.js?1461122561" type="text/javascript"></script>
+	    <script src="http://www.iteye.com/javascripts/replace.min.js?1464163001" type="text/javascript"></script>
+    
+    
+  </body>
+</html>
