@@ -1,0 +1,64 @@
+<listener>  
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>  
+</listener>
+<context-param>  
+    <param-name>contextConfigLocation</param-name>  
+    <param-value>/WEB-INF/teach-servlet.xml</param-value>  
+</context-param>  
+  
+<!-- Spring MVC -->  
+<servlet>  
+    <servlet-name>teach</servlet-name>  
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+    <load-on-startup>1</load-on-startup>  
+</servlet>  
+<servlet-mapping>  
+    <servlet-name>teach</servlet-name>  
+    <url-pattern>*.action</url-pattern>  
+</servlet-mapping>
+
+<servlet>  
+        <servlet-name>teach</servlet-name>  
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+        <init-param>  
+            <param-name>contextConfigLocation</param-name>  
+            <param-value>/WEB-INF/teach-servlet.xml</param-value>  
+        </init-param>  
+        <load-on-startup>1</load-on-startup>  
+    </servlet>  
+    <servlet-mapping>  
+        <servlet-name>teach</servlet-name>  
+        <url-pattern>*.action</url-pattern>  
+    </servlet-mapping> 
+    
+    发现Spring MVC 所需的配置文件不使用context-param节点指定，直接在DispatcherServlet里面配置即可
+注意：这种情况下，你的应用程序是无法使用WebApplicationContext的
+
+
+正常情况下，都会配置ContextLoaderListener，因为我们知道Spring IOC的两种实现
+
+基础的就是BeanFactory，高级的就是ApplicationContext，除非在资源非常有限的情况下，才使用BeanFactory
+
+否则都使用ApplicationContext，而WebApplicationContext就是其中的一种高级实现，它能提供很多有用的方法
+
+那么在应用程序如何获取 WebApplicationContext 呢，有多种方式，最简单的就是
+WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
+还有基于ServletContext上下文获取的方式
+ServletContext sc = request.getSession().getServletContext();  
+ApplicationContext ac1 = WebApplicationContextUtils.getRequiredWebApplicationContext(sc);  
+ApplicationContext ac2 = WebApplicationContextUtils.getWebApplicationContext(sc);  
+WebApplicationContext wac1 = (WebApplicationContext) sc.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);  
+
+还有一些更合适的，基于Spring提供的抽象类或者接口，在初始化Bean时注入ApplicationContext
+
+继承自抽象类ApplicationObjectSupport
+说明：抽象类ApplicationObjectSupport提供getApplicationContext()方法，可以方便的获取到ApplicationContext。
+Spring初始化时，会通过该抽象类的setApplicationContext(ApplicationContext context)方法将ApplicationContext 对象注入。
+
+继承自抽象类WebApplicationObjectSupport
+说明：类似上面方法，调用getWebApplicationContext()获取WebApplicationContext
+
+实现接口ApplicationContextAware
+说明：实现该接口的setApplicationContext(ApplicationContext context)方法，并保存ApplicationContext 对象。
+Spring初始化时，会通过该方法将ApplicationContext对象注入。
+
