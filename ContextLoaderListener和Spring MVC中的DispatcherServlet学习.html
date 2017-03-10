@@ -1,0 +1,477 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=10,IE=9,IE=8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<title>ContextLoaderListener和Spring MVC中的DispatcherServlet学习 - 郭伟伟@互联网</title>
+
+
+<meta name="description" content="DispatcherServlet介绍" />
+<meta name="keywords" content="J2EE,Java,spring,web,互联网技术" />
+
+<script>
+window._deel = {
+    name: '郭伟伟@互联网',
+    url: 'http://www.guoweiwei.com/wp-content/themes/d8',
+    rss: 'www.guoweiwei.com/feed',
+    ajaxpager: '',
+    maillist: '',
+    maillistCode: '',
+    commenton: 1,
+    roll: [1,2]
+}
+</script>
+<link rel='dns-prefetch' href='//s.w.org' />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/www.guoweiwei.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel='stylesheet' id='style-css'  href='http://qnimg.guoweiwei.com/wp-content/themes/d8/style.css?ver=3.0' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-pagenavi-css'  href='http://qnimg.guoweiwei.com/wp-content/plugins/wp-pagenavi/pagenavi-css.css?ver=2.70' type='text/css' media='all' />
+<script type='text/javascript' src='http://qnimg.guoweiwei.com/wp-content/themes/d8/js/jquery.js?ver=3.0'></script>
+<link rel='https://api.w.org/' href='http://www.guoweiwei.com/wp-json/' />
+<link rel='prev' title='日志分析时常用的一些shell命令' href='http://www.guoweiwei.com/2014/07/analyers-logging-shell-command.html' />
+<link rel='next' title='setInterval()能设置毫秒级别的循环周期吗？' href='http://www.guoweiwei.com/2014/07/setinterval-would-setting-millisecond-param.html' />
+<link rel="canonical" href="http://www.guoweiwei.com/2014/07/contextloaderlistener-and-spring-mvc-dispatcherservlet.html" />
+<link rel='shortlink' href='http://www.guoweiwei.com/?p=797' />
+<link rel="alternate" type="application/json+oembed" href="http://www.guoweiwei.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html" />
+<link rel="alternate" type="text/xml+oembed" href="http://www.guoweiwei.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&#038;format=xml" />
+<!-- wp thread comment 1.4.9.4.002 -->
+<style type="text/css" media="screen">
+.editComment, .editableComment, .textComment{
+	display: inline;
+}
+.comment-childs{
+	border: 1px solid #999;
+	margin: 5px 2px 2px 4px;
+	padding: 4px 2px 2px 4px;
+	background-color: white;
+}
+.chalt{
+	background-color: #e1f6f7;
+}
+#newcomment{
+	border:1px dashed #777;width:90%;
+}
+#newcommentsubmit{
+	color:red;
+}
+.adminreplycomment{
+	border:1px dashed #777;
+	width:99%;
+	margin:4px;
+	padding:4px;
+}
+.mvccls{
+	color: #999;
+}
+			
+</style>
+<!--[if lt IE 9]><script src="http://qnimg.guoweiwei.com/wp-content/themes/d8/js/html5.js"></script><![endif]-->
+</head>
+<body class="post-template-default single single-post postid-797 single-format-standard">
+<header class="header">
+	<div class="navbar">
+		<div class="logo"><a href="http://www.guoweiwei.com" title="郭伟伟@互联网-">郭伟伟@互联网</a></div>
+		<ul class="nav">
+			<li id="menu-item-867" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-has-children menu-item-867"><a title="互联网技术" href="http://www.guoweiwei.com/topic/technology">互联网技术</a>
+<ul class="sub-menu">
+	<li id="menu-item-901" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-901"><a href="http://www.guoweiwei.com/topic/technology/jichuzhishi/javacode">Java技术</a></li>
+	<li id="menu-item-900" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-900"><a href="http://www.guoweiwei.com/topic/technology/front-end">WEB前端</a></li>
+</ul>
+</li>
+<li id="menu-item-420" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-420"><a title="资源共享" href="http://www.guoweiwei.com/share">资源共享</a>
+<ul class="sub-menu">
+	<li id="menu-item-473" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-473"><a title="常用链接" href="http://www.guoweiwei.com/sitelink">常用链接</a></li>
+	<li id="menu-item-955" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-955"><a href="http://www.guoweiwei.com/android-doc">Android资源</a></li>
+	<li id="menu-item-995" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-995"><a href="http://www.guoweiwei.com/sitelink/frontend">前端资源</a></li>
+</ul>
+</li>
+<li id="menu-item-562" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-562"><a title="标签" href="http://www.guoweiwei.com/tagcloud">标签</a></li>
+<li id="menu-item-421" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-421"><a title="留言给我" href="http://www.guoweiwei.com/guestbook">留言本</a></li>
+<li id="menu-item-418" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-418"><a title="关于本人" href="http://www.guoweiwei.com/about">关于</a></li>
+<li id="menu-item-871" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-871"><a title="GeoServer中文社区" target="_blank" href="http://www.opengeo.cn">GeoServer中文社区</a></li>
+		</ul>
+		<div class="menu pull-right">
+			<form method="get" class="dropdown search-form" action="http://www.guoweiwei.com/" >
+				<input class="search-input" name="s" type="text" placeholder="输入关键字搜索" autofocus="" x-webkit-speech=""><input class="btn btn-success search-submit" type="submit" value="搜索">
+				<ul class="dropdown-menu search-suggest"></ul>
+			</form>
+			<div class="btn-group pull-left">
+				<button class="btn btn-primary" data-toggle="modal" data-target="#feed">订阅</button>
+								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">关注 <i class="caret"></i></button>
+				<ul class="dropdown-menu pull-right">
+					<li><a href="http://t.qq.com/thinkgww" target="_blank">腾讯微博</a></li>					<li><a href="http://weibo.com/guowww" target="_blank">新浪微博</a></li>														</ul>
+							</div>
+		</div>
+	</div>
+	<div class="speedbar">
+					<div class="pull-right">
+				<i class="icon-user icon12"></i> <a href="http://www.guoweiwei.com/wp-login.php">登录</a>			</div>
+				<div class="toptip"><strong class="text-success">最新消息：</strong>欢迎各位技术大牛一起交流讨论，邮箱：gww0426@163.com</div>
+	</div>
+</header>
+<section class="container">
+	<div class="content-wrap">
+	<div class="content">
+		<div class="breadcrumbs">你的位置：<a href="http://www.guoweiwei.com">郭伟伟@互联网</a> <small>></small> <a href="http://www.guoweiwei.com/topic/technology">互联网技术</a> <small>></small> <a href="http://www.guoweiwei.com/topic/technology/jichuzhishi">基础知识</a> <small>></small> <a href="http://www.guoweiwei.com/topic/technology/jichuzhishi/javacode">Java技术</a> <small>></small> <span class="muted">ContextLoaderListener和Spring MVC中的DispatcherServlet学习</span></div>
+				<header class="article-header">
+			<h1 class="article-title"><a href="http://www.guoweiwei.com/2014/07/contextloaderlistener-and-spring-mvc-dispatcherservlet.html">ContextLoaderListener和Spring MVC中的DispatcherServlet学习</a></h1>
+			<div class="meta">
+				<span class="muted"><a href="http://www.guoweiwei.com/topic/technology/jichuzhishi/javacode"><i class="icon-list-alt icon12"></i> Java技术</a></span>				<span class="muted"><i class="icon-user icon12"></i> <a href="http://www.guoweiwei.com/author/admin">郭伟伟</a></span>
+				<time class="muted"><i class="ico icon-time icon12"></i> 3年前 (2014-07-17)</time>
+				<span class="muted"><i class="ico icon-eye-open icon12"></i> 23019浏览</span>
+				<span class="muted"><i class="icon-comment icon12"></i> <a href="http://www.guoweiwei.com/2014/07/contextloaderlistener-and-spring-mvc-dispatcherservlet.html#comments">0评论</a></span>							</div>
+		</header>
+
+				
+		<article class="article-content">
+			<p>
+	<strong>DispatcherServlet介绍</strong></p>
+<p>
+	DispatcherServlet是Spring前端控制器的实现，提供Spring Web MVC的集中访问点，并且负责职责的分派，与Spring IoC容器无缝集成，从而可以获得Spring的所有好处。</p>
+<p>
+	DispatcherServlet主要用作职责调度工作，本身主要用于控制流程，主要职责如下：</p>
+<p>
+	1、文件上传解析，如果请求类型是multipart将通过MultipartResolver进行文件上传解析；<br />
+	2、通过HandlerMapping，将请求映射到处理器（返回一个HandlerExecutionChain，它包括一个处理器、多个HandlerInterceptor拦截器）；<br />
+	3、通过HandlerAdapter支持多种类型的处理器(HandlerExecutionChain中的处理器)；<br />
+	4、通过ViewResolver解析逻辑视图名到具体视图实现；<br />
+	5、本地化解析；<br />
+	6、渲染具体的视图等；<br />
+	7、如果执行过程中遇到异常将交给HandlerExceptionResolver来解析。</p>
+<p>
+	&nbsp;</p>
+<p>
+	DispatcherServlet默认使用WebApplicationContext作为上下文，Spring默认配置文件为&ldquo;/WEB-INF/[servlet名字]-servlet.xml&rdquo;。</p>
+<p>
+	DispatcherServlet也可以配置自己的初始化参数，覆盖默认配置：</p>
+<table border="1" cellpadding="0">
+<thead>
+<tr>
+<td>
+<p align="center">
+					<strong>参数</strong></p>
+</td>
+<td>
+<p align="center">
+					<strong>描述</strong></p>
+</td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<p align="left">
+					contextClass</p>
+</td>
+<td>
+<p align="left">
+					实现WebApplicationContext接口的类，当前的servlet用它来创建上下文。如果这个参数没有指定， 默认使用XmlWebApplicationContext。</p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left">
+					contextConfigLocation</p>
+</td>
+<td>
+<p align="left">
+					传给上下文实例（由contextClass指定）的字符串，用来指定上下文的位置。这个字符串可以被分成多个字符串（使用逗号作为分隔符） 来支持多个上下文（在多上下文的情况下，如果同一个bean被定义两次，后面一个优先）。<br />
+					默认为/WEB-INF/[server-name]-servlet.xml</p>
+</td>
+</tr>
+<tr>
+<td>
+<p align="left">
+					namespace</p>
+</td>
+<td>
+<p align="left">
+					WebApplicationContext命名空间。默认值是[server-name]-servlet。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>
+	如下：</p>
+<pre class="brush:xml;first-line:1;pad-line-numbers:true;highlight:null;collapse:false;">
+&lt;servlet&gt;
+        &lt;servlet-name&gt;demo&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+            &lt;param-value&gt;classpath:spring-servlet-config.xml&lt;/param-value&gt;
+        &lt;/init-param&gt;
+&lt;/servlet&gt;
+&lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;demo&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</pre>
+<p>
+	&nbsp;</p>
+<p>
+	<strong>Servlet上下文关系</strong></p>
+<p>
+	DispatcherServlet的上下文是通过配置servlet的contextConfigLocation来加载的，默认实现是XmlWebApplicationContext。</p>
+<p>
+	<span style="color:#ff0000;">值得注意的是</span>DispatcherServlet的上下文仅仅是Spring MVC的上下文，而Spring加载的上下文是通过ContextLoaderListener来加载的。一般spring web项目中同时会使用这两种上下文，前者仅负责MVC相关bean的配置管理（如ViewResolver、Controller、MultipartResolver等），后者则负责整个spring相关bean的配置管理（如相关Service、DAO等）。</p>
+<p>
+	因此在/WEB-INF/[server-name]-servlet.xml中配置的Bean一般只针对Spring MVC有效，而在ContextLoaderListener配置文件下配置的bean则对整个spring有效。</p>
+<p>
+	上下文创建完后会放在ServletContext对象中，其中ContextLoaderListener加载的上下文放在ServletContext的key为WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE属性中，而DispatcherServlet加载的上下文在每次请求时会放一份在request对象的key为WEB_APPLICATION_CONTEXT_ATTRIBUTE属性中。因而两者的获取方式也不一样，前者可以通过WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext)或WebApplicationContextUtils.getWebApplicationContext(servletContext)或WebApplicationContextUtils.getWebApplicationContext(servletContext,attrname)方法来获取对应的applicationContext，而后者则通过RequestContextUtils.getWebApplicationContext(request)或 WebApplicationContextUtils.getWebApplicationContext(servletContext,attrname)方法来获取对应的applicationContext。<br />
+	注：对于ContextLoaderListener加载的上下文，attrname即上面提到的WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE；而对于DispatcherServlet中的上下文则为FrameworkServlet.class.getName() + &quot;.CONTEXT.&quot; + getServletName()</p>
+<p>
+	&nbsp;</p>
+<p>
+	通过上下文所在的属性可以看出，如果通过WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext)来试图获取DispatcherServlet加载的applicationContext时，就会抛出&quot;No WebApplicationContext found: no ContextLoaderListener registered?&quot;的异常。</p>
+<p>
+	&nbsp;</p>
+<p>
+	<strong>DispatcherServlet中使用的特殊的Bean</strong></p>
+<p>	DispatcherServlet默认使用WebApplicationContext作为上下文，因此我们来看一下该上下文中有哪些特殊的Bean：</p>
+<p>	1、Controller：处理器/页面控制器，做的是MVC中的C的事情，但控制逻辑转移到前端控制器了，用于对请求进行处理；</p>
+<p>	2、HandlerMapping：请求到处理器的映射，如果映射成功返回一个HandlerExecutionChain对象（包含一个Handler处理器（页面控制器）对象、多个HandlerInterceptor拦截器）对象；如BeanNameUrlHandlerMapping将URL与Bean名字映射，映射成功的Bean就是此处的处理器；</p>
+<p>	3、HandlerAdapter：HandlerAdapter将会把处理器包装为适配器，从而支持多种类型的处理器，即适配器设计模式的应用，从而很容易支持很多类型的处理器；如SimpleControllerHandlerAdapter将对实现了Controller接口的Bean进行适配，并且掉处理器的handleRequest方法进行功能处理；</p>
+<p>	4、ViewResolver：ViewResolver将把逻辑视图名解析为具体的View，通过这种策略模式，很容易更换其他视图技术；如InternalResourceViewResolver将逻辑视图名映射为jsp视图；</p>
+<p>	5、LocalResover：本地化解析，因为Spring支持国际化，因此LocalResover解析客户端的Locale信息从而方便进行国际化；</p>
+<p>	6、ThemeResovler：主题解析，通过它来实现一个页面多套风格，即常见的类似于软件皮肤效果；</p>
+<p>	7、MultipartResolver：文件上传解析，用于支持文件上传；</p>
+<p>	8、HandlerExceptionResolver：处理器异常解析，可以将异常映射到相应的统一错误界面，从而显示用户友好的界面（而不是给用户看到具体的错误信息）；</p>
+<p>	9、RequestToViewNameTranslator：当处理器没有返回逻辑视图名等相关信息时，自动将请求URL映射为逻辑视图名；</p>
+<p>	10、FlashMapManager：用于管理FlashMap的策略接口，FlashMap用于存储一个请求的输出，当进入另一个请求时作为该请求的输入，通常用于重定向场景<br />
+	&nbsp;</p>
+<p>
+	通过以上的bean可以看出，一般LocalResover、ViewResolver等需要配置在/WEB-INF/[server-name]-servlet.xml文件中。</p>
+<p>
+	&nbsp;</p>
+<p>
+	注：本文部分转载自网络，其中大多数参考了《<span class="topictitle"><a class="blogtitle" href="http://sishuok.com/forum/blogPost/list/5188.html;jsessionid=EBC2151611BEB99BDF390C5CADBA693A" target="_blank" title="第三章 DispatcherServlet详解 ——跟开涛学SpringMVC">第三章 DispatcherServlet详解 &mdash;&mdash;跟开涛学SpringMVC </a> </span> 》</p>
+<p></p>
+<p>转载请注明：<a href="http://www.guoweiwei.com">郭伟伟@互联网</a> &raquo; <a href="http://www.guoweiwei.com/2014/07/contextloaderlistener-and-spring-mvc-dispatcherservlet.html">ContextLoaderListener和Spring MVC中的DispatcherServlet学习</a></p>
+<div id="anyShare" class="clearfix">
+<a target="_blank" rel="nofollow" id="L766" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="QQ空间" href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&desc=&summary=&site=&pics="></a>
+<a target="_blank" rel="nofollow" id="L398" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="新浪微博" href="http://service.weibo.com/share/share.php?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&appkey=&pic=&sudaref="></a>
+<a target="_blank" rel="nofollow" id="L161" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="腾讯微博" href="http://share.v.t.qq.com/index.php?c=share&a=index&url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&appkey="></a>
+<a target="_blank" rel="nofollow" id="L301" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="人人网" href="http://widget.renren.com/dialog/share?resourceUrl=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&srcUrl=&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&description="></a>
+<a target="_blank" rel="nofollow" id="L280" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="百度贴吧" href="http://tieba.baidu.com/f/commit/share/openShareApi?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&desc=&comment="></a>
+<a target="_blank" rel="nofollow" id="L315" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="开心网" href="http://www.kaixin001.com/rest/records.php?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&style=11&content=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&stime=&sig="></a>
+<a target="_blank" rel="nofollow" id="L472" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="百度空间" href="http://hi.baidu.com/pub/show/share?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&content=&linkid="></a>
+<a target="_blank" rel="nofollow" id="L937" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="豆瓣" href="http://www.douban.com/share/service?href=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&name=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0&image="></a>
+<a target="_blank" rel="nofollow" id="L115" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="搜狐微博" href="http://t.sohu.com/third/post.jsp?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&title=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0%20&pic="></a>
+<a target="_blank" rel="nofollow" id="L944" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="FaceBook" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html&t="></a>
+<a target="_blank" rel="nofollow" id="L050" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="Twitter" href="https://twitter.com/intent/tweet?source=webclient&text=ContextLoaderListener%E5%92%8CSpring%20MVC%E4%B8%AD%E7%9A%84DispatcherServlet%E5%AD%A6%E4%B9%A0%20http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html"></a>
+<a target="_blank" rel="nofollow" id="L918" onclick="javascript:window.open(this.href,'','menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=480,width=640'); return false;" title="GooglePlus" href="https://plus.google.com/share?url=http%3A%2F%2Fwww.guoweiwei.com%2F2014%2F07%2Fcontextloaderlistener-and-spring-mvc-dispatcherservlet.html"></a>
+<br clear="all"></div><!-- #anyShare -->		</article>
+
+		
+		<footer class="article-footer">
+			<div class="article-tags">继续浏览有关 <a href="http://www.guoweiwei.com/tag/j2ee" rel="tag">J2EE</a><a href="http://www.guoweiwei.com/tag/java" rel="tag">Java</a><a href="http://www.guoweiwei.com/tag/spring" rel="tag">spring</a><a href="http://www.guoweiwei.com/tag/web" rel="tag">web</a><a href="http://www.guoweiwei.com/tag/internet-techlogy" rel="tag">互联网技术</a> 的文章</div>					</footer>
+
+		<nav class="article-nav">
+			<span class="article-nav-prev">上一篇 <a href="http://www.guoweiwei.com/2014/07/analyers-logging-shell-command.html" rel="prev">日志分析时常用的一些shell命令</a></span>
+			<span class="article-nav-next"><a href="http://www.guoweiwei.com/2014/07/setinterval-would-setting-millisecond-param.html" rel="next">setInterval()能设置毫秒级别的循环周期吗？</a> 下一篇</span>
+		</nav>
+
+		<div class="relates">
+			<h3>与本文相关的文章</h3>
+			<ul>
+<li><a href="http://www.guoweiwei.com/2016/10/spring-shiro-md5-salt-crypt.html">spring-shiro实现密码的MD5盐值加密</a></li><li><a href="http://www.guoweiwei.com/2016/05/maven-china-mirrors.html">可用maven镜像/国内可用</a></li><li><a href="http://www.guoweiwei.com/2016/03/linux-top-cpu-memory.html">linux性能分析利器(一)——top命令分析CPU和内存</a></li><li><a href="http://www.guoweiwei.com/2016/03/custom-handlerexceptionresolver-handle-exception.html">通过自定义HandlerExceptionResolver处理异常</a></li><li><a href="http://www.guoweiwei.com/2015/07/centos-install-jdk.html">centos安装jdk</a></li><li><a href="http://www.guoweiwei.com/2014/12/niubility-fiddler-use-fiddler-script-replace-response.html">强大的fiddler——用fiddler Script替换响应内容</a></li><li><a href="http://www.guoweiwei.com/2014/10/css-float-layer.html">CSS常用浮出层的写法</a></li><li><a href="http://www.guoweiwei.com/2014/10/tomcat-appbase-docbase-priority.html">tomcat配置中appBase与docBase的优先级问题</a></li><li><a href="http://www.guoweiwei.com/2014/09/centos-tomcat-ssl-config.html">centos下tomcat的ssl配置</a></li><li><a href="http://www.guoweiwei.com/2014/08/use-fiddler-debug-mobile-page-request.html">使用Fiddler调试手机页面请求</a></li><li><a href="http://www.guoweiwei.com/2014/08/solr-study-2-solr-admin-webui-and-log.html">solr学习笔记二:了解solr的管理界面和日志</a></li><li><a href="http://www.guoweiwei.com/2014/05/use-html-base-tag-to-slove-the-problem-of-relative-path.html">用html的base标签解决相对路径问题</a></li></ul>		</div>
+
+		
+		<div id="respond" class="no_webshot">
+		<form action="http://www.guoweiwei.com/wp-comments-post.php" method="post" id="commentform">
+		
+		<div class="comt-title">
+			<div class="comt-avatar pull-left">
+				<img alt='' src='http://cn.gravatar.com/avatar/?s=28&#038;d=http%3A%2F%2Fwww.guoweiwei.com%2Fwp-content%2Fthemes%2Fd8%2Fimg%2Fdefault.png&#038;r=g' srcset='http://cn.gravatar.com/avatar/?s=56&amp;d=http%3A%2F%2Fwww.guoweiwei.com%2Fwp-content%2Fthemes%2Fd8%2Fimg%2Fdefault.png&amp;r=g 2x' class='avatar avatar-28 photo avatar-default' height='28' width='28' />			</div>
+			<div class="comt-author pull-left">
+			发表我的评论			</div>
+			<a id="cancel-comment-reply-link" class="pull-right" href="javascript:;">取消评论</a>
+		</div>
+		
+		<div class="comt">
+			<div class="comt-box">
+				<textarea placeholder="写点什么..." class="input-block-level comt-area" name="comment" id="comment" cols="100%" rows="3" tabindex="1" onkeydown="if(event.ctrlKey&amp;&amp;event.keyCode==13){document.getElementById('submit').click();return false};"></textarea>
+				<div class="comt-ctrl">
+					<button class="btn btn-primary pull-right" type="submit" name="submit" id="submit" tabindex="5"><i class="icon-ok-circle icon-white icon12"></i> 提交评论</button>
+					<div class="comt-tips pull-right"><input type='hidden' name='comment_post_ID' value='797' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="4414e145be" /></p><script>(function(){function loginCode(id,txt){return "<div class='xmLoginIconSet icon_"+id+"' onclick=\"window.open('http://www.guoweiwei.com/?connect="+id+"&action=login','xmOpenWindow','width=550,height=400,menubar=0,scrollbars=1,resizable=1,status=1,titlebar=0,toolbar=0,location=1');\" title='"+txt+"'></div>";}var loginHTML="<style>@import url(http://www.guoweiwei.com/wp-content/plugins/open-social-login-for-china/osl.css);</style>";loginHTML+="<div class=xmLoginForm>";loginHTML+=loginCode("qq","使用QQ登陆");loginHTML+=loginCode("sina","使用新浪微博登陆");loginHTML+="</div>";document.write(loginHTML);})();</script>
+	<script type="text/javascript">
+    function sc_reload(){
+       var url=location.href;
+       var temp = url.split("#");
+       url = temp[0];
+       url += "#sc_button";
+       location.href = url;
+       location.reload();
+    }
+    </script>	
+	<style type="text/css"> 
+	.sc_button img{ border:none;}
+    </style>
+	<p id="sc_connect" class="sc_button">
+	<img onclick='window.open("http://www.guoweiwei.com/wp-content/plugins/sina-connect/sina-start.php?callback_url=", "dcWindow","width=800,height=600,left=150,top=100,scrollbar=no,resize=no");return false;' src="http://qnimg.guoweiwei.com/wp-content/plugins/sina-connect/sina_button.png" alt="使用新浪微博登陆" style="cursor: pointer; margin-right: 20px;" />
+	</p>
+<p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="52"/></p><p><input type="hidden" id="comment_reply_ID" name="comment_reply_ID" value="0" /><input type="hidden" id="comment_reply_dp" name="comment_reply_dp" value="0" /></p><div id="cancel_reply" style="display:none;"><a href="javascript:void(0)" onclick="movecfm(null,0,1,null);" style="color:red;">点击取消回复</a></div><script type="text/javascript">
+/* <![CDATA[ */
+var commentformid = "commentform";
+var USERINFO = false;
+var atreply = "author";
+/* ]]> */
+</script>
+<script type="text/javascript" src="http://www.guoweiwei.com/wp-content/plugins/wordpress-thread-comment/wp-thread-comment.js.php?jsver=common"></script>
+</div>
+					<span data-type="comment-insert-smilie" class="muted comt-smilie"><i class="icon-thumbs-up icon12"></i> 表情</span>
+					<span class="muted comt-mailme"><label for="comment_mail_notify" class="checkbox inline" style="padding-top:0"><input type="checkbox" name="comment_mail_notify" id="comment_mail_notify" value="comment_mail_notify" checked="checked"/>有人回复时邮件通知我</label></span>
+				</div>
+			</div>
+
+												<div class="comt-comterinfo" id="comment-author-info" >
+						<h4>Hi，您需要填写昵称和邮箱！</h4>
+						<ul>
+							<li class="form-inline"><label class="hide" for="author">昵称</label><input class="ipt" type="text" name="author" id="author" value="" tabindex="2" placeholder="昵称"><span class="help-inline">昵称 (必填)</span></li>
+							<li class="form-inline"><label class="hide" for="email">邮箱</label><input class="ipt" type="text" name="email" id="email" value="" tabindex="3" placeholder="邮箱"><span class="help-inline">邮箱 (必填)</span></li>
+							<li class="form-inline"><label class="hide" for="url">网址</label><input class="ipt" type="text" name="url" id="url" value="" tabindex="4" placeholder="网址"><span class="help-inline">网址</span></li>
+						</ul>
+					</div>
+									</div>
+
+		
+	</form>
+	</div>
+<div id="postcomments">
+	<h3 id="comments">
+		网友最新评论<b> (1)</b>
+	</h3>
+	<ol class="commentlist">
+			</ol>
+	<div class="pagenav">
+			</div>
+</div>
+
+		
+	</div>
+</div>
+<aside class="sidebar">	
+<div class="widget widget_categories"><h3 class="widget_tit">分类目录</h3>		<ul>
+	<li class="cat-item cat-item-21"><a href="http://www.guoweiwei.com/topic/technology/jichuzhishi/javacode" >Java技术</a>
+</li>
+	<li class="cat-item cat-item-80"><a href="http://www.guoweiwei.com/topic/technology/front-end" >WEB前端</a>
+</li>
+	<li class="cat-item cat-item-78"><a href="http://www.guoweiwei.com/topic/technology" title="互联网技术，J2EE/Spring/Velocity/Mybatis 、PHP、HTML、CSS、Javascript、Redis、Memcached，CentOS等技术文章">互联网技术</a>
+</li>
+	<li class="cat-item cat-item-5"><a href="http://www.guoweiwei.com/topic/technology/yuanchuangwenzhang" >原创文章</a>
+</li>
+	<li class="cat-item cat-item-18"><a href="http://www.guoweiwei.com/topic/technology/jichuzhishi" >基础知识</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://www.guoweiwei.com/topic/xinqinggushi" >心情故事</a>
+</li>
+	<li class="cat-item cat-item-3"><a href="http://www.guoweiwei.com/topic/technology/jishusuibi" >技术随笔</a>
+</li>
+	<li class="cat-item cat-item-4"><a href="http://www.guoweiwei.com/topic/technology/jingpinzhuanzai" >精品转载</a>
+</li>
+	<li class="cat-item cat-item-19"><a href="http://www.guoweiwei.com/topic/technology/desingpattern" >设计模式</a>
+</li>
+		</ul>
+</div>		<div class="widget widget_recent_entries">		<h3 class="widget_tit">近期文章</h3>		<ul>
+					<li>
+				<a href="http://www.guoweiwei.com/2016/10/spring-shiro-md5-salt-crypt.html">spring-shiro实现密码的MD5盐值加密</a>
+						</li>
+					<li>
+				<a href="http://www.guoweiwei.com/2016/10/use-spring-cache-to-decouple-code.html">利用spring cache解耦业务中的缓存</a>
+						</li>
+					<li>
+				<a href="http://www.guoweiwei.com/2016/10/centos-compile-and-install-mysql.html">centos编译安装mysql（以mysql-5.6.26为例）</a>
+						</li>
+					<li>
+				<a href="http://www.guoweiwei.com/2016/10/weixinmp-content-ten-sources.html">[微信运营]微信公众号内容的10大来源</a>
+						</li>
+					<li>
+				<a href="http://www.guoweiwei.com/2016/10/windows-git-github.html">windows下初试git，配置github帐号</a>
+						</li>
+				</ul>
+		</div>		<div class="widget widget_views"><h3 class="widget_tit">热门文章</h3><ul>
+<li><a href="http://www.guoweiwei.com/2011/03/collection-buffer.html"  title="Collection集合中的Buffer">Collection集合中的Buffer</a> - 61,286 views</li><li><a href="http://www.guoweiwei.com/2011/03/collection-predicate-and-iterator.html"  title="学习Collection中的判别式Predicate和迭代器Iterator">学习Collection中的判别式Predicate和迭代器Iterator</a> - 53,523 views</li><li><a href="http://www.guoweiwei.com/2010/11/fix-the-bug-of-syntaxhighlighter.html"  title="修正了代码高亮插件syntaxhighlighter的bug">修正了代码高亮插件syntaxhighlighter的bug</a> - 47,767 views</li><li><a href="http://www.guoweiwei.com/2011/11/httpclient-optimize.html"  title="HttpClient优化">HttpClient优化</a> - 46,814 views</li><li><a href="http://www.guoweiwei.com/2009/06/hello-blog.html"  title="博客，又见面了">博客，又见面了</a> - 46,704 views</li><li><a href="http://www.guoweiwei.com/2010/01/ubuntu-jre-install-chinese-font.html"  title="Ubuntu下jre安装中文字体">Ubuntu下jre安装中文字体</a> - 44,296 views</li><li><a href="http://www.guoweiwei.com/2012/02/concurrent-programming-semaphore.html"  title="并发编程中的信号量Semaphore">并发编程中的信号量Semaphore</a> - 43,711 views</li><li><a href="http://www.guoweiwei.com/2011/09/javascript-to-add-event.html"  title="Javascript添加事件的方式">Javascript添加事件的方式</a> - 42,506 views</li><li><a href="http://www.guoweiwei.com/2010/06/the-day-wait-for-graduate.html"  title="毕业的这些日子">毕业的这些日子</a> - 40,872 views</li><li><a href="http://www.guoweiwei.com/2012/07/solve-the-weibo-openplatform-certificate-error-validatorexception-pkix-path-validation-failed.html"  title="解决开放平台的证书错误：ValidatorException：PKIX path validation failed">解决开放平台的证书错误：ValidatorException：PKIX path validation failed</a> - 39,602 views</li></ul>
+</div><div class="widget d_tag"><h3 class="widget_tit">标签云</h3><div class="d_tags"><a href="http://www.guoweiwei.com/tag/internet-techlogy">互联网技术 (40)</a><a href="http://www.guoweiwei.com/tag/centos">CentOS (39)</a><a href="http://www.guoweiwei.com/tag/linux">Linux (36)</a><a href="http://www.guoweiwei.com/tag/server-maintenance">服务器维护 (36)</a><a href="http://www.guoweiwei.com/tag/java">Java (34)</a><a href="http://www.guoweiwei.com/tag/intenet">互联网 (22)</a><a href="http://www.guoweiwei.com/tag/web">web (21)</a><a href="http://www.guoweiwei.com/tag/developer">产品开发 (16)</a><a href="http://www.guoweiwei.com/tag/javascript">Javascript (14)</a><a href="http://www.guoweiwei.com/tag/linux-performance">linux性能 (12)</a><a href="http://www.guoweiwei.com/tag/web-frontend">web前端 (11)</a><a href="http://www.guoweiwei.com/tag/performance-optimization">性能优化 (10)</a><a href="http://www.guoweiwei.com/tag/mysql">MySQL (8)</a><a href="http://www.guoweiwei.com/tag/spring">spring (7)</a><a href="http://www.guoweiwei.com/tag/design-pattern">设计模式 (6)</a><a href="http://www.guoweiwei.com/tag/server-monitor">服务器监控 (6)</a><a href="http://www.guoweiwei.com/tag/css">CSS (5)</a><a href="http://www.guoweiwei.com/tag/collection">Collection (5)</a><a href="http://www.guoweiwei.com/tag/linux-optimize">Linux优化 (5)</a><a href="http://www.guoweiwei.com/tag/solr">solr (5)</a><a href="http://www.guoweiwei.com/tag/complain">牢骚 (4)</a><a href="http://www.guoweiwei.com/tag/database">数据库 (4)</a><a href="http://www.guoweiwei.com/tag/nginx">nginx (4)</a><a href="http://www.guoweiwei.com/tag/wordpress">Wordpress (3)</a><a href="http://www.guoweiwei.com/tag/net">.NET (3)</a><a href="http://www.guoweiwei.com/tag/j2ee">J2EE (3)</a><a href="http://www.guoweiwei.com/tag/pm">产品经理 (3)</a><a href="http://www.guoweiwei.com/tag/operate">运营 (3)</a><a href="http://www.guoweiwei.com/tag/marketing">营销 (3)</a><a href="http://www.guoweiwei.com/tag/linux-memory">linux内存 (3)</a><a href="http://www.guoweiwei.com/tag/opensource">开源 (2)</a><a href="http://www.guoweiwei.com/tag/%e5%a4%9a%e5%9f%9f%e5%90%8d">多域名 (2)</a><a href="http://www.guoweiwei.com/tag/browser-cache">浏览器缓存 (2)</a><a href="http://www.guoweiwei.com/tag/discuz">discuz (2)</a><a href="http://www.guoweiwei.com/tag/browser-compatible">浏览器兼容 (2)</a><a href="http://www.guoweiwei.com/tag/php">php (2)</a><a href="http://www.guoweiwei.com/tag/tomcat">tomcat (2)</a><a href="http://www.guoweiwei.com/tag/weixin-mp">微信公众号 (2)</a><a href="http://www.guoweiwei.com/tag/project-management">项目管理 (1)</a><a href="http://www.guoweiwei.com/tag/eclipse">Eclipse (1)</a></div></div><div class="widget widget_links"><h3 class="widget_tit">GIS相关</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://opengeo.cn" title="GeoServer中文社区" target="_blank">GeoServer中文社区</a></li>
+<li><a href="http://geoserver.org" title="GeoServer官网（英文）" target="_blank">GeoServer官网</a></li>
+<li><a href="http://www.openlayers.org/" title="OpenLayers官网（英文）" target="_blank">OpenLayers</a></li>
+<li><a href="http://www.qgis.org/index.php" title="Qgis官网（英文）" target="_blank">Quantum GIS</a></li>
+<li><a href="http://udig.refractions.net/" title="uDig官网（英文）" target="_blank">uDig官网</a></li>
+
+	</ul>
+</div>
+<div class="widget widget_links"><h3 class="widget_tit">好友链接</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://www.opengsc.com" target="_blank">OpenGSC工作室</a></li>
+<li><a href="http://www.sinapp.cn" title="农村电子商务" target="_blank">农村电商</a></li>
+<li><a href="http://www.pl6.cn" target="_blank">平凉门户网</a></li>
+<li><a href="http://www.zijinghong.cn" target="_blank">庄浪紫荆红</a></li>
+
+	</ul>
+</div>
+<div class="widget widget_links"><h3 class="widget_tit">开发资源</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://opengeo.cn" title="GeoServer中文社区" target="_blank">GeoServer中文社区</a></li>
+<li><a href="http://www.ibm.com/developerworks/cn/java/web/servlet.html" title="developerWorks 中国：Java Web 专题：Servlet" target="_blank">IBM Servlet专题</a></li>
+<li><a href="http://developers.sun.com.cn/javafx/index.jsp" title="JavaFX | 富 Internet 应用程序开发| RIAs Java FX" target="_blank">JavaFX</a></li>
+<li><a href="http://jqueryui.com/themeroller/" title="jQuery UI themeroller" target="_blank">jQuery UI</a></li>
+<li><a href="http://www.json.org/" title="JSON官网（英文）" target="_blank">JSON官网</a></li>
+<li><a href="http://wiki.nginx.org/NginxChs" target="_blank">Nginx中文WIKI</a></li>
+<li><a href="http://blog.s135.com/book/squid/index.html" target="_blank">Squid权威指南中文版</a></li>
+<li><a href="http://www.w3school.com.cn/" title="W3school" target="_blank">W3school</a></li>
+<li><a href="http://themes.wopus.org/" target="_blank">WordPress主题站</a></li>
+<li><a href="http://www.liaoxuefeng.com" title="一个JAVA高手" target="_blank">廖雪峰的BLOG</a></li>
+<li><a href="http://cdn.code.baidu.com/" target="_blank">百度CDN资源库</a></li>
+
+	</ul>
+</div>
+</aside></section>
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="copyright pull-left">
+            版权所有，保留一切权利！ &copy; 2017 <a href="http://www.guoweiwei.com">郭伟伟@互联网</a>　Theme <a href="http://www.daqianduan.com/" target="_blank">D8</a>
+        </div>
+        <div class="trackcode pull-right">
+            <div style="display:none"><script type="text/javascript" src="http://tajs.qq.com/stats?sId=22191162" charset="UTF-8"></script></div>
+<div style="display:none"><script src="http://s4.cnzz.com/stat.php?id=1254558922&web_id=1254558922" language="JavaScript"></script></div>        </div>
+    </div>
+</footer>
+<script type='text/javascript' src='http://qnimg.guoweiwei.com/wp-content/plugins/akismet/_inc/form.js?ver=3.2'></script>
+<link rel='stylesheet' id='anyShare-css'  href='http://qnimg.guoweiwei.com/wp-content/plugins/anyshare/anyShare.css?ver=1.1' type='text/css' media='all' />
+<script type='text/javascript' src='http://qnimg.guoweiwei.com/wp-includes/js/wp-embed.min.js?ver=4.7.3'></script>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script></body>
+</html>
